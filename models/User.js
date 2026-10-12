@@ -5,23 +5,23 @@ const UserSchema = new mongoose.Schema({
     // Name
     name: {
         type: String,
-        required: [true, 'Please add a name'],
+        required: [true, 'Please add a name.'],
     },
 
     // Telephone Number
     telephoneNumber: {
         type: String,
-        required: [true, 'Please add a telephone number'],
+        required: [true, 'Please add a telephone number.'],
     },
 
     // Email
     email: {
         type: String,
-        require: [true, 'Please add an email'],
+        require: [true, 'Please add an email.'],
         unique: true,
         match: [
             /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            'Please add a valid email'
+            'Please add a valid email.'
         ],
         lowercase: true,
     },
@@ -36,7 +36,7 @@ const UserSchema = new mongoose.Schema({
     // Password (hashed)
     password: {
         type: String,
-        required: [true, 'Please add a password'],
+        required: [true, 'Please add a password.'],
         minlength: 6,
         select: false
     },
