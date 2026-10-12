@@ -3,30 +3,26 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 
-// === Route files ===
-// const auth = require("./routes/auth");
-// const coworkingspaces = require("./routes/coworkingspaces");
-// const reservations = require("./routes/reservations");
+// Route files
+const coworkingSpaces = require("./routes/coworkingSpaces");
 
-// === Load env vars ===
-dotenv.config({ path: "./config/config.env" });
+// Load env vars
+dotenv.config({ path: "./src/config/config.env" });
 
-// === Connect to Database ===
+// Connect to Database
 connectDB();
 
 const app = express();
 app.set("query parser", "extended");
 
-// === Body parser ===
+// Body parser
 app.use(express.json());
 
-// === Cookie parser ===
+//Cookie parser
 app.use(cookieParser());
 
-// === Mount routers ===
-// app.use("/api/v1/auth", auth);
-// app.use("/api/v1/coworkingspaces", coworkingspaces);
-// app.use("/api/v1/reservations", reservations);
+//Mount routers
+app.use("/api/v1/coworkingspaces", coworkingSpaces);
 
 const PORT = process.env.PORT || 5000;
 app.listen(
@@ -39,9 +35,9 @@ app.listen(
   ),
 );
 
-// === Handle unhandled promise rejections ===
+// Handle unhandled promise rejections
 process.on("unhandledRejection", (err, promise) => {
   console.log(`Error: ${err.message}`);
-  // === Close server & exit process ===
+  // Close server & exit process
   ServerApiVersion.close(() => process.exit(1));
 });

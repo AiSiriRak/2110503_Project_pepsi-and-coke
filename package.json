@@ -2,25 +2,32 @@
   "name": "2110503_project_pepsi-and-coke",
   "version": "1.0.0",
   "description": "Project for 2110503 Software Development Practice",
-  "main": "n",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "homepage": "https://github.com/AiSiriRak/2110503_Project_pepsi-and-coke#readme",
+  "bugs": {
+    "url": "https://github.com/AiSiriRak/2110503_Project_pepsi-and-coke/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AiSiriRak/2110503_Project_pepsi-and-coke.git"
   },
-  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/AiSiriRak/2110503_Project_pepsi-and-coke/issues"
+  "author": "",
+  "type": "commonjs",
+  "main": "n",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
   },
-  "homepage": "https://github.com/AiSiriRak/2110503_Project_pepsi-and-coke#readme",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "dotenv": "^18.0.7",
     "express": "^5.3.0",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
