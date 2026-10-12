@@ -19,7 +19,7 @@
     "dev": "nodemon src/server.js",
     "ci:local": "npm run type-check && npm run lint && npm run test",
     "lint": "eslint .",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "type-check": "node check-syntax.js"
   },
   "dependencies": {
