@@ -2,9 +2,10 @@ name: Node.js CI
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["**"]
   pull_request:
-    branches: ["main", "master"]
+    branches: "main"
+  workflow_dispatch:
 
 jobs:
   build-and-test:
