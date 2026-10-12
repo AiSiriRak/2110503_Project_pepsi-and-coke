@@ -10,14 +10,14 @@ const ReservationSchema = new mongoose.Schema({
 
     // Co-working Space ID
     coworkingSpace: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'CoworkingSpace',
         required: true,
     },
 
     // User ID
     user: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
@@ -27,12 +27,9 @@ const ReservationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-
-    // Creating timestamp
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-})
+}, {
+    // Timestamp for created at and updated at
+    timestamps: true
+});
 
 module.exports = mongoose.model('Reservation', ReservationSchema);

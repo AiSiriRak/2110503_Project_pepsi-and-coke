@@ -1,4 +1,6 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // User Schema
 const UserSchema = new mongoose.Schema({
@@ -17,7 +19,7 @@ const UserSchema = new mongoose.Schema({
     // Email
     email: {
         type: String,
-        require: [true, 'Please add an email.'],
+        required: [true, 'Please add an email.'],
         unique: true,
         match: [
             /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -46,13 +48,10 @@ const UserSchema = new mongoose.Schema({
 
     // Reset password expire timestamp
     resetPasswordExpire: Date,
-
-    // Creating timestamp
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-})
+}, {
+    // Timestamp for created at and updated at
+    timestamps: true
+});
 
 // Encryot password using bcrypt
 UserSchema.pre('save', async function (next) {
@@ -65,11 +64,11 @@ UserSchema.methods.getSignedJwtToken = function () {
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE
     });
-}
+};
 
 // Match user entered password to hash password in database
 UserSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
-}
+};
 
 module.exports = mongoose.model('User', UserSchema);

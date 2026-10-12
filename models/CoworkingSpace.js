@@ -37,12 +37,9 @@ const CoworkingSpaceSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Please add a maximum capacity.'],
     },
-
-    // Creating timestamp
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-})
+}, {
+    // Timestamp for created at and updated at
+    timestamps: true
+});
 
 module.exports = mongoose.model('CoworkingSpace', CoworkingSpaceSchema);
