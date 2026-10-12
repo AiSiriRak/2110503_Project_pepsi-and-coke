@@ -6,13 +6,11 @@ const CoworkingSpace = require("../models/CoworkingSpace");
 exports.getCoworkingSpaces = async (req, res, next) => {
   try {
     const coworkingSpaces = await CoworkingSpace.find();
-    res
-      .status(200)
-      .json({
-        success: true,
-        count: coworkingSpaces.length,
-        data: coworkingSpaces,
-      });
+    res.status(200).json({
+      success: true,
+      count: coworkingSpaces.length,
+      data: coworkingSpaces,
+    });
   } catch (error) {
     res.status(400).json({ success: false });
   }

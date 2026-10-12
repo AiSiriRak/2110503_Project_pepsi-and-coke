@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use("/api/v1/coworkingspaces", coworkingSpaces);
 
 const PORT = process.env.PORT || 5000;
-app.listen(
+const server = app.listen(
   PORT,
   console.log(
     "Server running in ",
@@ -36,8 +36,8 @@ app.listen(
 );
 
 // Handle unhandled promise rejections
-process.on("unhandledRejection", (err, promise) => {
+process.on("unhandledRejection", (err, _promise) => {
   console.log(`Error: ${err.message}`);
   // Close server & exit process
-  ServerApiVersion.close(() => process.exit(1));
+  server.close(() => process.exit(1));
 });
