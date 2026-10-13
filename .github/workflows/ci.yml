@@ -33,3 +33,5 @@ jobs:
         env:
           NODE_ENV: test
           PORT: 5000
+      - name: Run Format Check
+        run: npm run format-check
