@@ -36,7 +36,8 @@ JWT_COOKIE_EXPIRE=30
 | Command            | Description                              |
 | ------------------ | ---------------------------------------- |
 | `npm run dev`      | Run the server in development mode       |
-| `npm run ci:local` | Run the CI checks locally before pushing |
+| `npm run ci`       | Run the CI checks locally before pushing |
+| `npm run format`   | Format all files                         |
 
 ## API Overview
 
