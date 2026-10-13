@@ -1,8 +1,8 @@
 const CoworkingSpace = require("../models/CoworkingSpace");
 
-// // @desc Get all coworking spaces
-// // @route GET /api/v1/coworkingSpaces
-// // @access Public
+// @desc Get all coworking spaces
+// @route GET /api/v1/coworkingSpaces
+// @access Public
 exports.getCoworkingSpaces = async (req, res, next) => {
   try {
     const coworkingSpaces = await CoworkingSpace.find();
@@ -12,6 +12,7 @@ exports.getCoworkingSpaces = async (req, res, next) => {
       data: coworkingSpaces,
     });
   } catch (error) {
-    res.status(400).json({ success: false });
+    console.log(error);
+    res.status(400).json({ success: false, message: error });
   }
 };
