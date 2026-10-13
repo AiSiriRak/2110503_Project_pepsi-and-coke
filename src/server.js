@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 
 // Route files
+const auth = require("./routes/auth");
 const coworkingSpaces = require("./routes/coworkingSpaces");
 
 // Load env vars
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 //Mount routers
+app.use("/api/v1/auth", auth);
 app.use("/api/v1/coworkingspaces", coworkingSpaces);
 
 const PORT = process.env.PORT || 5000;
