@@ -13,14 +13,14 @@ const ReservationSchema = new mongoose.Schema(
         coworkingSpace: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'CoworkingSpace',
-            required: true,
+            required: [true, 'Please choose a Co-working space.'],
         },
 
         // User ID
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true,
+            required: [true, 'Please add a user id'],
         },
 
         // Co-booker
