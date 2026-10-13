@@ -12,7 +12,6 @@ exports.getCoworkingSpaces = async (req, res, next) => {
       data: coworkingSpaces,
     });
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ success: false, message: error });
+    next(error);
   }
 };

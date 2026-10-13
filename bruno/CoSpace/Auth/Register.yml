@@ -10,11 +10,11 @@ http:
     type: json
     data: |-
       {
-          "name": "{{username}}",
-          "telephoneNumber": "{{tel}}",
-          "email": "{{email}}",
-          "password": "{{password}}",
-          "role": "user"
+          "name" : "{{username}}",
+          "telephoneNumber" : "{{tel}}",
+          "email" : "{{email}}",
+          "password" : "{{password}}",
+          "role" : "user"
       }
   auth: inherit
 
