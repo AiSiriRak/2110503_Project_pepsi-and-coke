@@ -1,2 +1,4 @@
-config/config.env
-node_modules
+# ignore all node modules
+node_modules/*
+# ignore config file
+src/config/config.env
