@@ -14,7 +14,7 @@ http:
           "telephoneNumber" : "{{tel}}",
           "email" : "{{email}}",
           "password" : "{{password}}",
-          "role" : "user"
+          "role" : "admin"
       }
   auth: inherit
 

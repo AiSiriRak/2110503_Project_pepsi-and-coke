@@ -1,0 +1,190 @@
+info:
+  name: Create Co-working Space
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{URL}}/coworking-spaces"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "{{cospaceName}}",
+        "address": "{{address}}",
+        "telephoneNumber": "{{telephoneNumber}}",
+        "openTime": "{{openTime}}",
+        "closeTime": "{{closeTime}}",
+        "maximumCapacity": {{maxCapacity}}
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Generate a Co-working space name
+        bru.setVar(
+          'cospaceName', 
+          bru.interpolate('{{$randomCompanyName}} Space')
+        );
+
+        // Generate an address
+        bru.setVar(
+            'address',
+            bru.interpolate('{{$randomStreetAddress}}, {{$randomCity}}')
+        );
+
+        // Generate a telephone number
+        const prefixes = ['06', '08', '09'];
+        const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+        const thaiPhone = `${randomPrefix}${randomNumber}`;
+
+        bru.setVar('telephoneNumber', thaiPhone);
+
+        // Generate a opening time
+        const randomOpenHour = Math.floor(Math.random() * 12) + 6;
+        const openTimeStr = (Math.random() < 0.5) ? 
+              `${String(randomOpenHour).padStart(2, '0')}:00`: 
+              `${String(randomOpenHour).padStart(2, '0')}:30`;
+
+        bru.setVar('openTime', openTimeStr);
+
+        // Generate a closing time
+        const randomCloseHour = Math.floor(Math.random() * 6) + 18;
+        const closeTimeStr = (Math.random() < 0.5) ? 
+              `${String(randomCloseHour).padStart(2, '0')}:00`: 
+              `${String(randomCloseHour).padStart(2, '0')}:30`;
+
+        bru.setVar('closeTime', closeTimeStr);
+
+        // Generate a maximum capacity
+        const maxCapacity = Math.floor(Math.random() * 15) + 1;
+        bru.setVar('maxCapacity', maxCapacity);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 201 response
+    description: Create success!
+    request:
+      url: "{{URL}}/coworking-spaces"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "{{cospaceName}}",
+            "address": "{{address}}",
+            "telephoneNumber": "{{telephoneNumber}}",
+            "openTime": "{{openTime}}",
+            "closeTime": "{{closeTime}}",
+            "maximumCapacity": {{maxCapacity}}
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: x-powered-by
+          value: Express
+        - name: content-type
+          value: application/json; charset=utf-8
+        - name: content-length
+          value: "335"
+        - name: etag
+          value: W/"14f-D3aV7pJqEXO13HC730eE8XfHbk0"
+        - name: date
+          value: Wed, 14 Oct 2026 15:56:52 GMT
+        - name: connection
+          value: keep-alive
+        - name: keep-alive
+          value: timeout=5
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "name": "",
+              "address": "",
+              "telephoneNumber": "",
+              "openTime": "",
+              "closeTime": "",
+              "maximumCapacity": 0,
+              "_id": "",
+              "createdAt": "",
+              "updatedAt": "",
+              "__v": 0,
+              "id": ""
+            }
+          }
+  - name: 400 response
+    description: Invalid field in body
+    request:
+      url: "{{URL}}/coworking-spaces"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "{{cospaceName}}",
+            "address": "{{address}}",
+            "telephoneNumber": "{{telephoneNumber}}",
+            "openTime": "08.00",
+            "closeTime": "{{closeTime}}",
+            "maximumCapacity": {{maxCapacity}}
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      body:
+        type: text
+        data: |-
+          {
+            "success": false,
+            "message": "Please use HH:mm format for open time (e.g. 08:00)."
+          }
+  - name: 401 response
+    description: Unauthorized
+    request:
+      url: "{{URL}}/coworking-spaces"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "{{cospaceName}}",
+            "address": "{{address}}",
+            "telephoneNumber": "{{telephoneNumber}}",
+            "openTime": "{{openTime}}",
+            "closeTime": "{{closeTime}}",
+            "maximumCapacity": {{maxCapacity}}
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      body:
+        type: text
+        data: |-
+          {
+            "success": false,
+            "message": "Not authorized to access this route"
+          }
+
+docs: |-
+  An API for create a new Co-working Space, require
+
+  - name: string
+  - address: string
+  - telephone number: string
+  - opening time: string (HH:mm format)
+  - closing time: string (HH:mm format)
+  - maximum capacity: number
+
+  by the example we're using all of the information as randomness to create a new Co-working Space.
