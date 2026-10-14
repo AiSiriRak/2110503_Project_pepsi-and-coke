@@ -1,7 +1,7 @@
 const express = require('express');
 
 const { protect, authorize } = require('../middleware/auth');
-const { getCoworkingSpaces } = require('../controllers/coworkingSpaces');
+const { getCoworkingSpaces } = require('../controllers/coworkingspaces');
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 const CoworkingSpace = require('../models/CoworkingSpace');
 
 // @desc    Get all coworking spaces
-// @route   GET /api/v1/coworkingSpaces
+// @route   GET /api/v1/coworking-spaces
 // @access  Public
 exports.getCoworkingSpaces = async (req, res, next) => {
     try {

@@ -20,12 +20,12 @@ app.set('query parser', 'extended');
 // Body parser
 app.use(express.json());
 
-//Cookie parser
+// Cookie parser
 app.use(cookieParser());
 
-//Mount routers
+// Mount routers
 app.use('/api/v1/auth', auth);
-app.use('/api/v1/coworkingspaces', coworkingSpaces);
+app.use('/api/v1/coworking-spaces', coworkingSpaces);
 
 app.use(errorHandler);
 
