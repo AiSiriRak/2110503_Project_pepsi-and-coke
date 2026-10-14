@@ -2,7 +2,7 @@ const CoworkingSpace = require('../models/CoworkingSpace');
 
 // @desc    Get all coworking spaces
 // @route   GET /api/v1/coworking-spaces
-// @access  Public
+// @access  Protected
 exports.getCoworkingSpaces = async (req, res, next) => {
     try {
         let query;
@@ -84,3 +84,21 @@ exports.getCoworkingSpaces = async (req, res, next) => {
         next(error);
     }
 };
+
+
+// @desc    Create a new Co-working Space
+// @route   POST /api/v1/coworking-spaces
+// @access  Private
+exports.createCoworkingSpace = async (req, res, next) => {
+    try {
+        // Create Co-working Space
+        const coworkingSpace = await CoworkingSpace.create(req.body);
+
+        res.status(201).json({
+            success: true,
+            data: coworkingSpace,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
