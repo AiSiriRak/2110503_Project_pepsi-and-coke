@@ -1,7 +1,7 @@
 info:
   name: Create Co-working Space
   type: http
-  seq: 2
+  seq: 3
 
 http:
   method: POST
@@ -31,8 +31,8 @@ runtime:
 
         // Generate an address
         bru.setVar(
-            'address',
-            bru.interpolate('{{$randomStreetAddress}}, {{$randomCity}}')
+          'address',
+          bru.interpolate('{{$randomStreetAddress}}, {{$randomCity}}')
         );
 
         // Generate a telephone number
@@ -43,7 +43,7 @@ runtime:
 
         bru.setVar('telephoneNumber', thaiPhone);
 
-        // Generate a opening time
+        // Generate an opening time
         const randomOpenHour = Math.floor(Math.random() * 12) + 6;
         const openTimeStr = (Math.random() < 0.5) ? 
               `${String(randomOpenHour).padStart(2, '0')}:00`: 
@@ -71,8 +71,8 @@ settings:
   forwardAuthorizationHeader: false
 
 examples:
-  - name: 201 response
-    description: Create success!
+  - name: 201 Created - Co-working Space Created Successfully
+    description: Create a new co-working space with valid randomized data
     request:
       url: "{{URL}}/coworking-spaces"
       method: POST
@@ -80,52 +80,40 @@ examples:
         type: json
         data: |-
           {
-            "name": "{{cospaceName}}",
-            "address": "{{address}}",
-            "telephoneNumber": "{{telephoneNumber}}",
-            "openTime": "{{openTime}}",
-            "closeTime": "{{closeTime}}",
-            "maximumCapacity": {{maxCapacity}}
+            "name": "Nexus Hub Space",
+            "address": "456 Phra Ram 9 Rd, Bangkok",
+            "telephoneNumber": "0898765432",
+            "openTime": "08:00",
+            "closeTime": "22:00",
+            "maximumCapacity": 15
           }
     response:
       status: 201
       statusText: Created
       headers:
-        - name: x-powered-by
-          value: Express
         - name: content-type
           value: application/json; charset=utf-8
-        - name: content-length
-          value: "335"
-        - name: etag
-          value: W/"14f-D3aV7pJqEXO13HC730eE8XfHbk0"
-        - name: date
-          value: Wed, 14 Oct 2026 15:56:52 GMT
-        - name: connection
-          value: keep-alive
-        - name: keep-alive
-          value: timeout=5
       body:
         type: json
         data: |-
           {
             "success": true,
             "data": {
-              "name": "",
-              "address": "",
-              "telephoneNumber": "",
-              "openTime": "",
-              "closeTime": "",
-              "maximumCapacity": 0,
-              "_id": "",
-              "createdAt": "",
-              "updatedAt": "",
+              "_id": "670d3e8f8f23a80012ab34cd",
+              "name": "Nexus Hub Space",
+              "address": "456 Phra Ram 9 Rd, Bangkok",
+              "telephoneNumber": "0898765432",
+              "openTime": "08:00",
+              "closeTime": "22:00",
+              "maximumCapacity": 15,
+              "createdAt": "2026-10-14T15:56:52.000Z",
+              "updatedAt": "2026-10-14T15:56:52.000Z",
               "__v": 0,
-              "id": ""
+              "id": "670d3e8f8f23a80012ab34cd"
             }
           }
-  - name: 400 response
-    description: Invalid field in body
+  - name: 400 Bad Request - Validation Error
+    description: Invalid field format in body (e.g. openTime does not match HH:mm Regex)
     request:
       url: "{{URL}}/coworking-spaces"
       method: POST
@@ -133,25 +121,28 @@ examples:
         type: json
         data: |-
           {
-            "name": "{{cospaceName}}",
-            "address": "{{address}}",
-            "telephoneNumber": "{{telephoneNumber}}",
+            "name": "Nexus Hub Space",
+            "address": "456 Phra Ram 9 Rd, Bangkok",
+            "telephoneNumber": "0898765432",
             "openTime": "08.00",
-            "closeTime": "{{closeTime}}",
-            "maximumCapacity": {{maxCapacity}}
+            "closeTime": "22:00",
+            "maximumCapacity": 15
           }
     response:
       status: 400
       statusText: Bad Request
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
       body:
-        type: text
+        type: json
         data: |-
           {
             "success": false,
             "message": "Please use HH:mm format for open time (e.g. 08:00)."
           }
-  - name: 401 response
-    description: Unauthorized
+  - name: 401 Unauthorized - Missing or Invalid Token
+    description: Attempting to create a co-working space without sending a valid Bearer token
     request:
       url: "{{URL}}/coworking-spaces"
       method: POST
@@ -169,22 +160,56 @@ examples:
     response:
       status: 401
       statusText: Unauthorized
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
       body:
-        type: text
+        type: json
         data: |-
           {
             "success": false,
-            "message": "Not authorized to access this route"
+            "message": "Not authorize to access this route"
+          }
+  - name: 403 Forbidden - Insufficient Permissions
+    description: User role is 'user' instead of 'admin'
+    request:
+      url: "{{URL}}/coworking-spaces"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "{{cospaceName}}",
+            "address": "{{address}}",
+            "telephoneNumber": "{{telephoneNumber}}",
+            "openTime": "{{openTime}}",
+            "closeTime": "{{closeTime}}",
+            "maximumCapacity": {{maxCapacity}}
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "User role user is not authorized to access this route"
           }
 
 docs: |-
-  An API for create a new Co-working Space, require
+  An API to create a new Co-working Space (Admin only).
 
-  - name: string
-  - address: string
-  - telephone number: string
-  - opening time: string (HH:mm format)
-  - closing time: string (HH:mm format)
-  - maximum capacity: number
+  Required Request Body Fields:
+  - name: string (Name of the space)
+  - address: string (Full street address)
+  - telephoneNumber: string (Thai phone format, e.g. 0812345678)
+  - openTime: string (Opening time in HH:mm format)
+  - closeTime: string (Closing time in HH:mm format)
+  - maximumCapacity: number (Maximum seating capacity)
 
-  by the example we're using all of the information as randomness to create a new Co-working Space.
+  Automation Details:
+  - Pre-request Script: Dynamically generates randomized values for testing.

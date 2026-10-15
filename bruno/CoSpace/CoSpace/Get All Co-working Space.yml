@@ -16,7 +16,7 @@ settings:
   forwardAuthorizationHeader: false
 
 examples:
-  - name: 200 response
+  - name: 200 OK - Fetch Success with Data
     description: Fetch all co-working spaces success with pagination and filtering
     request:
       url: "{{URL}}/coworking-spaces?select=name,address,telephoneNumber,maximumCapacity&sort=-createdAt&page=1&limit=10"
@@ -25,20 +25,8 @@ examples:
       status: 200
       statusText: OK
       headers:
-        - name: x-powered-by
-          value: Express
         - name: content-type
           value: application/json; charset=utf-8
-        - name: content-length
-          value: "412"
-        - name: etag
-          value: W/"19c-X7yZ8pK9qEXO13HC730eE8XfHbk0"
-        - name: date
-          value: Wed, 14 Oct 2026 16:00:00 GMT
-        - name: connection
-          value: keep-alive
-        - name: keep-alive
-          value: timeout=5
       body:
         type: json
         data: |-
@@ -67,20 +55,61 @@ examples:
               }
             ]
           }
-  - name: 400 response
-    description: Invalid query parameter type
+  - name: 200 OK - Fetch Success with Empty Array
+    description: Fetch co-working spaces successfully when no records match criteria
+    request:
+      url: "{{URL}}/coworking-spaces?name=NonExistentSpace"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "count": 0,
+            "pagination": {},
+            "data": []
+          }
+  - name: 400 Bad Request - Invalid Query Type
+    description: Invalid query parameter type (e.g. non-numeric value passed to gte)
     request:
       url: "{{URL}}/coworking-spaces?maximumCapacity[gte]=invalid_number"
       method: GET
     response:
       status: 400
       statusText: Bad Request
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
       body:
-        type: text
+        type: json
         data: |-
           {
             "success": false,
             "message": "Cast to Number failed for value \"invalid_number\" at path \"maximumCapacity\""
+          }
+  - name: 401 Unauthorized - Missing or Invalid Token
+    description: Attempting to fetch resources without sending a valid Bearer token
+    request:
+      url: "{{URL}}/coworking-spaces"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Not authorize to access this route"
           }
 
 docs: |-

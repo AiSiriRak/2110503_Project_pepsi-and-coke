@@ -1,0 +1,18 @@
+info:
+  name: Test folder
+  type: folder
+  seq: 4
+
+request:
+  auth: inherit
+  variables:
+    - name: userEmail
+      value: user@test.com
+    - name: adminEmail
+      value: admin@test.com
+    - name: allUserPassword
+      value: password123
+
+docs:
+  content: "A Test folder: for login into 2 difference roles, to testing other API as both admin and user."
+  type: text/markdown
