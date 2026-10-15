@@ -6,6 +6,7 @@ const {
     getCoworkingSpace,
     createCoworkingSpace,
     updateCoworkingSpace,
+    deleteCoworkingSpace,
 } = require('../controllers/coworkingspaces');
 
 const router = express.Router();
@@ -18,6 +19,7 @@ router
 router
     .route('/:id')
     .get(protect, getCoworkingSpace)
-    .put(protect, authorize('admin'), updateCoworkingSpace);
+    .put(protect, authorize('admin'), updateCoworkingSpace)
+    .delete(protect, authorize('admin'), deleteCoworkingSpace);
 
 module.exports = router;

@@ -7,4 +7,4 @@ request:
   auth: inherit
   variables:
     - name: CoworkingSpaceID
-      value: 6ad12939dd9c4d006ee5c21b
+      value: 6ad134ca05fd9dfa2969165c

@@ -1,4 +1,5 @@
 const CoworkingSpace = require('../models/CoworkingSpace');
+const Reservation = require('../models/Reservation');
 const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all coworking spaces
@@ -96,7 +97,7 @@ exports.getCoworkingSpace = async (req, res, next) => {
 
         // Co-working Space with the ID not found
         if (!coworkingSpace) {
-            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND, 404));
+            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND(req.params.id), 404));
         }
 
         // Found Co-working Space
@@ -139,13 +140,46 @@ exports.updateCoworkingSpace = async (req, res, next) => {
 
         // Co-working Space with the ID not found
         if (!coworkingSpace) {
-            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND, 404));
+            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND(req.params.id), 404));
         }
 
         // Update success
         res.status(200).json({
             success: true,
             data: coworkingSpace,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+// @desc    Delete a Co-working Space by ID
+// @route   DELETE /api/v1/coworking-spaces/:id
+// @access  Private
+exports.deleteCoworkingSpace = async (req, res, next) => {
+    try {
+        // Find Co-working Space by ID
+        const coworkingSpace = await CoworkingSpace.findById(req.params.id);
+
+        // Co-working Space with the ID not found
+        if (!coworkingSpace) {
+            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND(req.params.id), 404));
+        }
+
+        // Delete reservation from the Co-working Space with ID
+        await Reservation.deleteMany({
+            coworkingSpace: req.params.id
+        });
+
+        // Delete Co-working Space with ID
+        await CoworkingSpace.deleteOne({
+            _id: req.params.id
+        });
+
+        // Delete success
+        res.status(200).json({
+            success: true,
+            data: {},
         });
     } catch (error) {
         next(error);
