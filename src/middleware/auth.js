@@ -14,10 +14,7 @@ exports.protect = async (req, res, next) => {
 
     // Make sure token exists
     if (!token) {
-        return res.status(401).json({
-            success: false,
-            message: 'Not authorize to access this route',
-        });
+        return next(new ErrorResponse(MSG.NOT_AUTHORIZED, 401));
     }
 
     try {
@@ -30,22 +27,23 @@ exports.protect = async (req, res, next) => {
         next();
     } catch (error) {
         console.log(error.stack);
-        return res.status(401).json({
-            success: false,
-            message: 'Not authorize to access this route',
-        });
+        return next(new ErrorResponse(MSG.NOT_AUTHORIZED, 401));
     }
 };
 
 // Grant access to specific roles
 exports.authorize = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({
-                success: false,
-                message: `User role ${req.user.role} is not authorized to access this route`,
-            });
+        // Check if there are role
+        if (!req.user) {
+            return next(new ErrorResponse(MSG.NOT_AUTHORIZED, 401));
         }
+
+        // Check if the role is allowed
+        if (!roles.includes(req.user.role)) {
+            return  next(new ErrorResponse(MSG.FORBIDDEN(req.user.role), 403));
+        }
+
         next();
     };
 };
