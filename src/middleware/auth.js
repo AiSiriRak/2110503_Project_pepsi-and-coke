@@ -41,7 +41,7 @@ exports.authorize = (...roles) => {
 
         // Check if the role is allowed
         if (!roles.includes(req.user.role)) {
-            return  next(new ErrorResponse(MSG.FORBIDDEN(req.user.role), 403));
+            return next(new ErrorResponse(MSG.FORBIDDEN(req.user.role), 403));
         }
 
         next();

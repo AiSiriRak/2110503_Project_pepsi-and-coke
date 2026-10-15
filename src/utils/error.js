@@ -19,6 +19,8 @@ const MSG = {
 
     // 404 Not Found
     USER_NOT_FOUND: 'User not found',
+    RESOURCE_NOT_FOUND: 'Resource not found',
+    COWORKING_SPACE_NOT_FOUND: 'Coworking space not found with the provided ID',
 
     // 500 Internal Server Error
     SERVER_ERROR: 'Internal server error',

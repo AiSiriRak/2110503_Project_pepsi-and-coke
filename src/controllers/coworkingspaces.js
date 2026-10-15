@@ -1,4 +1,5 @@
 const CoworkingSpace = require('../models/CoworkingSpace');
+const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all coworking spaces
 // @route   GET /api/v1/coworking-spaces
@@ -85,6 +86,28 @@ exports.getCoworkingSpaces = async (req, res, next) => {
     }
 };
 
+// @desc    Get a Co-working Space by ID
+// @route   GET /api/v1/coworking-spaces/:id
+// @access  Protected
+exports.getCoworkingSpace = async (req, res, next) => {
+    try {
+        // Find Co-working Space by ID
+        const coworkingspace = await CoworkingSpace.findById(req.params.id);
+
+        // Co-working Space with the ID not found
+        if (!coworkingspace) {
+            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND, 404));
+        }
+
+        // Found Co-working Space
+        res.status(200).json({
+            success: true,
+            data: coworkingspace,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
 
 // @desc    Create a new Co-working Space
 // @route   POST /api/v1/coworking-spaces

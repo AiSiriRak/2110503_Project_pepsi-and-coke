@@ -1,8 +1,14 @@
-const MSG = require('../utils/error');
+const { MSG } = require('../utils/error');
 
 const errorHandler = (err, req, res, next) => {
     let statusCode = err.statusCode || 500;
     let message = err.message;
+
+    // Bad ObjectId
+    if (err.name === 'CastError') {
+        statusCode = 404;
+        message = MSG.RESOURCE_NOT_FOUND || 'Resource not found';
+    }
 
     // Mongoose validation error (missing field, invalid email, short password)
     if (err.name === 'ValidationError') {
