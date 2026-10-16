@@ -1,0 +1,1609 @@
+{
+  "info": {
+    "name": "CoSpace",
+    "description": null,
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Test folder",
+          "item": [
+            {
+              "name": "User Login",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "description": "",
+                "url": {
+                  "raw": "{{URL}}/auth/login",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{allUserPassword}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Admin Login",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "description": "",
+                "url": {
+                  "raw": "{{URL}}/auth/login",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"{{adminEmail}}\",\n    \"password\": \"{{allUserPassword}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "description": "An API to register a new user or admin account.\n\nRequest Body Fields:\n- name: string (User display name)\n- telephoneNumber: string (Thai phone number format)\n- email: string (Unique valid email address)\n- password: string (Minimum 6 characters)\n- role: string (Optional, e.g. 'user' or 'admin')\n\nAutomation Details:\n- Pre-request Script: Dynamically generates randomized username, email, password, and Thai telephone number.\n- After-response Script: Automatically captures the received `token` from the response body and stores it into Bruno environment variable `token`.",
+            "url": {
+              "raw": "{{URL}}/auth/register",
+              "protocol": "",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{username}}\",\n  \"telephoneNumber\": \"{{telephoneNumber}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "// Generate a username",
+                  "const username = pm.variables.replaceIn('{{$randomUserName}}');",
+                  "pm.variables.set(\"username\", username);",
+                  "",
+                  "// Generate an email",
+                  "const email = pm.variables.replaceIn('{{$randomEmail}}').toLowerCase();",
+                  "pm.variables.set(\"email\", email);",
+                  "",
+                  "// Generate a password",
+                  "const password = pm.variables.replaceIn('{{$randomPassword}}');",
+                  "pm.variables.set(\"password\", password);",
+                  "",
+                  "// Generate a Thai telephone number",
+                  "const prefixes = ['06', '08', '09'];",
+                  "const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+                  "const randomNumber = Math.floor(10000000 + Math.random() * 90000000);",
+                  "const thaiPhone = `${randomPrefix}${randomNumber}`;",
+                  "",
+                  "pm.variables.set('telephoneNumber', thaiPhone);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if (pm.response.code === 201 && response.token) {",
+                  "  pm.variables.set(\"token\", response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK - Registration Successful",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/register",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"johndoe\",\n  \"telephoneNumber\": \"0812345678\",\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"admin\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Bad Request - Email Already Registered",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/register",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"johndoe\",\n  \"telephoneNumber\": \"0812345678\",\n  \"email\": \"existing@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"user\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Email is already registered.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Bad Request - Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/register",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"\",\n  \"telephoneNumber\": \"0812345678\",\n  \"email\": \"invalid-email\",\n  \"password\": \"123\",\n  \"role\": \"user\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Please add a name, Please add a valid email, Password must be at least 6 characters\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "description": "An API to authenticate an existing user and obtain a JWT access token.\n\nRequest Body Fields:\n- email: string (Registered user email address)\n- password: string (User account password)\n\nAutomation Details:\n- After-response Script: Automatically captures the returned `token` from the response body and stores it into Bruno's `token` variable.",
+            "url": {
+              "raw": "{{URL}}/auth/login",
+              "protocol": "",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if ((pm.response.code === 200 || pm.response.code === 201) && response.token) {",
+                  "  pm.variables.set(\"token\", response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK - Login Successful",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/login",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Bad Request - Missing Credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/login",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Please provide an email and password.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized - Invalid Credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/login",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"johndoe@example.com\",\n  \"password\": \"WrongPassword123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid credentials\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "An API to fetch details of the currently authenticated user based on the provided Bearer token.\n\nAuthentication:\n- Requires Bearer Token in Authorization header (`{{token}}`).\n\nResponses:\n- 200 OK: Returns current logged-in user profile (`_id`, `name`, `email`, `telephoneNumber`, `role`, `createdAt`).\n- 401 Unauthorized: Token missing, invalid, or expired.\n- 404 Not Found: User record associated with token no longer exists.",
+            "url": {
+              "raw": "{{URL}}/auth/me",
+              "protocol": "",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - Fetch Current User Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/me",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"670d3e8f8f23a80012ab34cd\",\n    \"name\": \"johndoe\",\n    \"telephoneNumber\": \"0812345678\",\n    \"email\": \"johndoe@example.com\",\n    \"role\": \"admin\",\n    \"createdAt\": \"2026-10-14T14:33:37.000Z\",\n    \"__v\": 0\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized - Missing or Invalid Token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/me",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorize to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found - User No Longer Exists",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/auth/me",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User not found\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Co-working Space",
+      "item": [
+        {
+          "name": "Get All Co-working Space",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "An API to fetch all Co-working Spaces with built-in support for filtering, selecting fields, sorting, and pagination.\n\nQuery Parameters:\n- select: Comma-separated list of fields to include (e.g. ?select=name,address)\n- sort: Comma-separated list of fields to sort by (e.g. ?sort=-createdAt,name)\n- page: Page number for pagination (Default: 1)\n- limit: Maximum number of records per page (Default: 25)\n- Filtering: Supports comparison operators such as [gt], [gte], [lt], [lte], [in] (e.g. ?maximumCapacity[gte]=10)",
+            "url": {
+              "raw": "{{URL}}/coworking-spaces",
+              "protocol": "",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "coworking-spaces"
+              ],
+              "query": [],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  if (pm.response.body && pm.response.body.data && pm.response.body.data.length > 0) {",
+                  "    const spaceId = pm.response.body.data[0]._id;",
+                  "",
+                  "    pm.variables.set(\"CoworkingSpaceID\", spaceId);",
+                  "",
+                  "    if (typeof pm !== 'undefined') {",
+                  "      pm.collectionVariables.set(\"CoworkingSpaceID\", spaceId);",
+                  "    }",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK - Fetch Success with Data",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces?select=name,address,telephoneNumber,maximumCapacity&sort=-createdAt&page=1&limit=10",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces?select=name,address,telephoneNumber,maximumCapacity&sort=-createdAt&page=1&limit=10"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"count\": 1,\n  \"pagination\": {\n    \"next\": {\n      \"page\": 2,\n      \"limit\": 10\n    }\n  },\n  \"data\": [\n    {\n      \"_id\": \"670d3e8f8f23a80012ab34cd\",\n      \"name\": \"Acme Corp Space\",\n      \"address\": \"123 Sukhumvit Rd, Bangkok\",\n      \"telephoneNumber\": \"0812345678\",\n      \"openTime\": \"08:00\",\n      \"closeTime\": \"20:00\",\n      \"maximumCapacity\": 12,\n      \"createdAt\": \"2026-10-14T14:33:37.000Z\",\n      \"updatedAt\": \"2026-10-14T14:33:37.000Z\",\n      \"__v\": 0,\n      \"id\": \"670d3e8f8f23a80012ab34cd\"\n    }\n  ]\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "200 OK - Fetch Success with Empty Array",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces?name=NonExistentSpace",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces?name=NonExistentSpace"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"count\": 0,\n  \"pagination\": {},\n  \"data\": []\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Bad Request - Invalid Query Type",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces?maximumCapacity[gte]=invalid_number",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces?maximumCapacity[gte]=invalid_number"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Cast to Number failed for value \\\"invalid_number\\\" at path \\\"maximumCapacity\\\"\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized - Missing or Invalid Token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorize to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Get Co-working Space by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "An API to fetch details of a specific Co-working Space by its unique MongoDB ObjectId.\n\nPath Parameters:\n- id: The 24-character hex ObjectId of the target co-working space (`{{CoworkingSpaceID}}`).",
+            "url": {
+              "raw": "{{URL}}/coworking-spaces/:id",
+              "protocol": "",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "coworking-spaces",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{CoworkingSpaceID}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - Fetch Single Space Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab34cd"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"670d3e8f8f23a80012ab34cd\",\n    \"name\": \"Acme Corp Space\",\n    \"address\": \"123 Sukhumvit Rd, Bangkok\",\n    \"telephoneNumber\": \"0812345678\",\n    \"openTime\": \"08:00\",\n    \"closeTime\": \"20:00\",\n    \"maximumCapacity\": 12,\n    \"createdAt\": \"2026-10-14T14:33:37.000Z\",\n    \"updatedAt\": \"2026-10-14T14:33:37.000Z\",\n    \"__v\": 0,\n    \"id\": \"670d3e8f8f23a80012ab34cd\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized - Missing or Invalid Token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab34cd"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorize to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found - Space Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab9999",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab9999"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Coworking space not found with the provided ID\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found - Invalid ObjectId Format",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/invalid_id",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "invalid_id"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Resource not found\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Create Co-working Space",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "description": "An API to create a new Co-working Space (Admin only).\n\nRequired Request Body Fields:\n- name: string (Name of the space)\n- address: string (Full street address)\n- telephoneNumber: string (Thai phone format, e.g. 0812345678)\n- openTime: string (Opening time in HH:mm format)\n- closeTime: string (Closing time in HH:mm format)\n- maximumCapacity: number (Maximum seating capacity)\n\nAutomation Details:\n- Pre-request Script: Dynamically generates randomized values for testing.",
+            "url": {
+              "raw": "{{URL}}/coworking-spaces",
+              "protocol": "",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "coworking-spaces"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{cospaceName}}\",\n  \"address\": \"{{address}}\",\n  \"telephoneNumber\": \"{{telephoneNumber}}\",\n  \"openTime\": \"{{openTime}}\",\n  \"closeTime\": \"{{closeTime}}\",\n  \"maximumCapacity\": {{maxCapacity}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "// Generate a Co-working space name",
+                  "const cospaceName = pm.variables.replaceIn('{{$randomCompanyName}} Space');",
+                  "pm.variables.set('cospaceName', cospaceName);",
+                  "",
+                  "// Generate an address",
+                  "const address = pm.variables.replaceIn('{{$randomStreetAddress}}, {{$randomCity}}');",
+                  "pm.variables.set('address', address);",
+                  "",
+                  "// Generate a telephone number",
+                  "const prefixes = ['06', '08', '09'];",
+                  "const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+                  "const randomNumber = Math.floor(10000000 + Math.random() * 90000000);",
+                  "const telephoneNumber = `${randomPrefix}${randomNumber}`;",
+                  "pm.variables.set('telephoneNumber', telephoneNumber);",
+                  "",
+                  "// Generate an opening time",
+                  "const randomOpenHour = Math.floor(Math.random() * 12) + 6;",
+                  "const openTime = (Math.random() < 0.5) ? ",
+                  "      `${String(randomOpenHour).padStart(2, '0')}:00` : ",
+                  "      `${String(randomOpenHour).padStart(2, '0')}:30`;",
+                  "pm.variables.set('openTime', openTime);",
+                  "",
+                  "// Generate a closing time",
+                  "const randomCloseHour = Math.floor(Math.random() * 6) + 18;",
+                  "const closeTime = (Math.random() < 0.5) ? ",
+                  "      `${String(randomCloseHour).padStart(2, '0')}:00` : ",
+                  "      `${String(randomCloseHour).padStart(2, '0')}:30`;",
+                  "pm.variables.set('closeTime', closeTime);",
+                  "",
+                  "// Generate a maximum capacity",
+                  "const maxCapacity = Math.floor(Math.random() * 15) + 1;",
+                  "pm.variables.set('maxCapacity', maxCapacity);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "const response = pm.response.json();",
+                  "",
+                  "if (pm.response.code === 201 && response.data?._id) {",
+                  "  pm.variables.set(\"CoworkingSpaceID\", response.data._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 Created - Co-working Space Created Successfully",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nexus Hub Space\",\n  \"address\": \"456 Phra Ram 9 Rd, Bangkok\",\n  \"telephoneNumber\": \"0898765432\",\n  \"openTime\": \"08:00\",\n  \"closeTime\": \"22:00\",\n  \"maximumCapacity\": 15\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"670d3e8f8f23a80012ab34cd\",\n    \"name\": \"Nexus Hub Space\",\n    \"address\": \"456 Phra Ram 9 Rd, Bangkok\",\n    \"telephoneNumber\": \"0898765432\",\n    \"openTime\": \"08:00\",\n    \"closeTime\": \"22:00\",\n    \"maximumCapacity\": 15,\n    \"createdAt\": \"2026-10-14T15:56:52.000Z\",\n    \"updatedAt\": \"2026-10-14T15:56:52.000Z\",\n    \"__v\": 0,\n    \"id\": \"670d3e8f8f23a80012ab34cd\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Bad Request - Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nexus Hub Space\",\n  \"address\": \"456 Phra Ram 9 Rd, Bangkok\",\n  \"telephoneNumber\": \"0898765432\",\n  \"openTime\": \"08.00\",\n  \"closeTime\": \"22:00\",\n  \"maximumCapacity\": 15\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Please use HH:mm format for open time (e.g. 08:00).\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized - Missing or Invalid Token",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"{{cospaceName}}\",\n  \"address\": \"{{address}}\",\n  \"telephoneNumber\": \"{{telephoneNumber}}\",\n  \"openTime\": \"{{openTime}}\",\n  \"closeTime\": \"{{closeTime}}\",\n  \"maximumCapacity\": {{maxCapacity}}\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorize to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "403 Forbidden - Insufficient Permissions",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"{{cospaceName}}\",\n  \"address\": \"{{address}}\",\n  \"telephoneNumber\": \"{{telephoneNumber}}\",\n  \"openTime\": \"{{openTime}}\",\n  \"closeTime\": \"{{closeTime}}\",\n  \"maximumCapacity\": {{maxCapacity}}\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User role user is not authorized to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Update Co-working Space",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "description": "An API to update details of an existing Co-working Space by ID (Admin only).",
+            "url": {
+              "raw": "{{URL}}/coworking-spaces/:id",
+              "protocol": "",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "coworking-spaces",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{CoworkingSpaceID}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{cospaceName}}\",\n  \"maximumCapacity\": {{maxCapacity}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  "pm.variables.set(",
+                  "  'cospaceName', ",
+                  "  pm.variables.replaceIn('{{$randomCompanyName}} Updated Space')",
+                  ");",
+                  "const maxCapacity = Math.floor(Math.random() * 20) + 5;",
+                  "pm.variables.set('maxCapacity', maxCapacity);"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK - Space Updated Successfully",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab34cd"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Acme Corp Renewed Space\",\n  \"maximumCapacity\": 25\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"670d3e8f8f23a80012ab34cd\",\n    \"name\": \"Acme Corp Renewed Space\",\n    \"address\": \"123 Sukhumvit Rd, Bangkok\",\n    \"telephoneNumber\": \"0812345678\",\n    \"openTime\": \"08:00\",\n    \"closeTime\": \"20:00\",\n    \"maximumCapacity\": 25,\n    \"createdAt\": \"2026-10-14T14:33:37.000Z\",\n    \"updatedAt\": \"2026-10-16T02:45:00.000Z\",\n    \"__v\": 0,\n    \"id\": \"670d3e8f8f23a80012ab34cd\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized - Missing or Invalid Token",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab34cd"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorize to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "403 Forbidden - Insufficient Permissions",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab34cd"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User role user is not authorized to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found - Space Not Found",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab9999",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab9999"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Coworking space not found with the provided ID\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Delete Co-working Space",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "description": "An API to remove a Co-working Space from the database by ID (Admin only).",
+            "url": {
+              "raw": "{{URL}}/coworking-spaces/:id",
+              "protocol": "",
+              "host": [
+                "{{URL}}"
+              ],
+              "path": [
+                "coworking-spaces",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "{{CoworkingSpaceID}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK - Space Deleted Successfully",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab34cd"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"data\": {}\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized - Missing or Invalid Token",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab34cd"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorize to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "403 Forbidden - Insufficient Permissions",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab34cd"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"User role user is not authorized to access this route\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "404 Not Found - Space Not Found",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab9999",
+                  "protocol": "",
+                  "host": [
+                    "{{URL}}"
+                  ],
+                  "path": [
+                    "coworking-spaces",
+                    "670d3e8f8f23a80012ab9999"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8",
+                  "name": "content-type",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Coworking space not found with the provided ID\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "URL",
+      "value": "http://localhost:5000/api/v1",
+      "type": "default"
+    },
+    {
+      "key": "userEmail",
+      "value": "user@test.com",
+      "type": "default"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@test.com",
+      "type": "default"
+    },
+    {
+      "key": "allUserPassword",
+      "value": "password123",
+      "type": "default"
+    },
+    {
+      "key": "CoworkingSpaceID",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "default"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}} ",
+        "type": "string"
+      }
+    ]
+  }
+}

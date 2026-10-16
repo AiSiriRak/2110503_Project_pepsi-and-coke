@@ -23,13 +23,16 @@ runtime:
     - type: before-request
       code: |-
         // Generate a username
-        bru.setVar("username", bru.interpolate('{{$randomUserName}}'));
+        const username = bru.interpolate('{{$randomUserName}}');
+        bru.setVar("username", username);
 
         // Generate an email
-        bru.setVar("email", bru.interpolate('{{$randomEmail}}').toLowerCase());
+        const email = bru.interpolate('{{$randomEmail}}').toLowerCase();
+        bru.setVar("email", email);
 
         // Generate a password
-        bru.setVar("password", bru.interpolate('{{$randomPassword}}'));
+        const password = bru.interpolate('{{$randomPassword}}');
+        bru.setVar("password", password);
 
         // Generate a Thai telephone number
         const prefixes = ['06', '08', '09'];
@@ -40,8 +43,10 @@ runtime:
         bru.setVar('telephoneNumber', thaiPhone);
     - type: after-response
       code: |-
-        if (res.body?.token) {
-          bru.setVar("token", res.body.token);
+        const response = res.getBody();
+
+        if (res.getStatus() === 201 && response.token) {
+          bru.setVar("token", response.token);
         }
 
 settings:

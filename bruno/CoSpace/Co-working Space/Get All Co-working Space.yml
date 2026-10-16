@@ -8,6 +8,22 @@ http:
   url: "{{URL}}/coworking-spaces"
   auth: inherit
 
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.status === 200) {
+          if (res.body && res.body.data && res.body.data.length > 0) {
+            const spaceId = res.body.data[0]._id;
+
+            bru.setVar("CoworkingSpaceID", spaceId);
+
+            if (typeof pm !== 'undefined') {
+              pm.collectionVariables.set("CoworkingSpaceID", spaceId);
+            }
+          }
+        }
+
 settings:
   encodeUrl: true
   timeout: 0

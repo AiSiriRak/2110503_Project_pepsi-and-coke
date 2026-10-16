@@ -24,44 +24,44 @@ runtime:
     - type: before-request
       code: |-
         // Generate a Co-working space name
-        bru.setVar(
-          'cospaceName', 
-          bru.interpolate('{{$randomCompanyName}} Space')
-        );
+        const cospaceName = bru.interpolate('{{$randomCompanyName}} Space');
+        bru.setVar('cospaceName', cospaceName);
 
         // Generate an address
-        bru.setVar(
-          'address',
-          bru.interpolate('{{$randomStreetAddress}}, {{$randomCity}}')
-        );
+        const address = bru.interpolate('{{$randomStreetAddress}}, {{$randomCity}}');
+        bru.setVar('address', address);
 
         // Generate a telephone number
         const prefixes = ['06', '08', '09'];
         const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
         const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
-        const thaiPhone = `${randomPrefix}${randomNumber}`;
-
-        bru.setVar('telephoneNumber', thaiPhone);
+        const telephoneNumber = `${randomPrefix}${randomNumber}`;
+        bru.setVar('telephoneNumber', telephoneNumber);
 
         // Generate an opening time
         const randomOpenHour = Math.floor(Math.random() * 12) + 6;
-        const openTimeStr = (Math.random() < 0.5) ? 
-              `${String(randomOpenHour).padStart(2, '0')}:00`: 
+        const openTime = (Math.random() < 0.5) ? 
+              `${String(randomOpenHour).padStart(2, '0')}:00` : 
               `${String(randomOpenHour).padStart(2, '0')}:30`;
-
-        bru.setVar('openTime', openTimeStr);
+        bru.setVar('openTime', openTime);
 
         // Generate a closing time
         const randomCloseHour = Math.floor(Math.random() * 6) + 18;
-        const closeTimeStr = (Math.random() < 0.5) ? 
-              `${String(randomCloseHour).padStart(2, '0')}:00`: 
+        const closeTime = (Math.random() < 0.5) ? 
+              `${String(randomCloseHour).padStart(2, '0')}:00` : 
               `${String(randomCloseHour).padStart(2, '0')}:30`;
-
-        bru.setVar('closeTime', closeTimeStr);
+        bru.setVar('closeTime', closeTime);
 
         // Generate a maximum capacity
         const maxCapacity = Math.floor(Math.random() * 15) + 1;
         bru.setVar('maxCapacity', maxCapacity);
+    - type: after-response
+      code: |-
+        const response = res.getBody();
+
+        if (res.getStatus() === 201 && response.data?._id) {
+          bru.setVar("CoworkingSpaceID", response.data._id);
+        }
 
 settings:
   encodeUrl: true

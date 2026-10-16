@@ -19,8 +19,10 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        if (res.body?.token) {
-          bru.setVar("token", res.body.token);
+        const response = res.getBody();
+
+        if ((res.getStatus() === 200 || res.getStatus() === 201) && response.token) {
+          bru.setVar("token", response.token);
         }
 
 settings:
