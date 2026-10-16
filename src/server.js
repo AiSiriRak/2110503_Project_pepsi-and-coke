@@ -7,6 +7,7 @@ const errorHandler = require('./middleware/error');
 // Route files
 const auth = require('./routes/auth');
 const coworkingSpaces = require('./routes/coworkingSpaces');
+const reservations = require('./routes/reservations');
 
 // Load env vars
 dotenv.config({ path: './src/config/config.env' });
@@ -30,6 +31,7 @@ app.get('/health', (req, res) => {
 // Mount routers
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/coworking-spaces', coworkingSpaces);
+app.use('/api/v1/reservations', reservations);
 
 app.use(errorHandler);
 

@@ -1,0 +1,20 @@
+info:
+  name: Update Reservation
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{URL}}/reservations/:id"
+  params:
+    - name: id
+      value: "{{ReservationID}}"
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
