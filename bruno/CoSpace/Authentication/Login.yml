@@ -19,10 +19,20 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        const response = res.getBody();
+        const body = res.getBody();
 
-        if ((res.getStatus() === 200 || res.getStatus() === 201) && response.token) {
-          bru.setVar("token", response.token);
+        test("Login returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Login response contains a token", () => {
+          expect(body.success).to.equal(true);
+          expect(body.token).to.be.a("string");
+          expect(body.token).to.not.be.empty;
+        });
+
+        if (res.getStatus() === 200 && body.token) {
+          bru.setVar("token", body.token);
         }
 
 settings:

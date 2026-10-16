@@ -124,10 +124,20 @@
                                 "packages": {},
                                 "requests": {},
                                 "exec": [
-                                    "const response = pm.response.json();",
+                                    "const body = pm.response.json();",
                                     "",
-                                    "if (pm.response.code === 201 && response.token) {",
-                                    "  pm.variables.set(\"token\", response.token);",
+                                    "pm.test(\"Register returns 200 or 201\", () => {",
+                                    "  pm.expect([200, 201]).to.include(pm.response.code);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Register returns success and token\", () => {",
+                                    "  pm.expect(body.success).to.equal(true);",
+                                    "  pm.expect(body.token).to.be.a(\"string\");",
+                                    "  pm.expect(body.token).to.not.be.empty;",
+                                    "});",
+                                    "",
+                                    "if ([200, 201].includes(pm.response.code) && body.token) {",
+                                    "  pm.variables.set(\"registeredToken\", body.token);",
                                     "}"
                                 ]
                             }
@@ -282,10 +292,20 @@
                                 "packages": {},
                                 "requests": {},
                                 "exec": [
-                                    "const response = pm.response.json();",
+                                    "const body = pm.response.json();",
                                     "",
-                                    "if ((pm.response.code === 200 || pm.response.code === 201) && response.token) {",
-                                    "  pm.variables.set(\"token\", response.token);",
+                                    "pm.test(\"Login returns 200\", () => {",
+                                    "  pm.expect(pm.response.code).to.equal(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Login response contains a token\", () => {",
+                                    "  pm.expect(body.success).to.equal(true);",
+                                    "  pm.expect(body.token).to.be.a(\"string\");",
+                                    "  pm.expect(body.token).to.not.be.empty;",
+                                    "});",
+                                    "",
+                                    "if (pm.response.code === 200 && body.token) {",
+                                    "  pm.variables.set(\"token\", body.token);",
                                     "}"
                                 ]
                             }
@@ -433,6 +453,29 @@
                             "variable": []
                         }
                     },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {},
+                                "exec": [
+                                    "const body = pm.response.json();",
+                                    "",
+                                    "pm.test(\"Get User returns 200\", () => {",
+                                    "  pm.expect(pm.response.code).to.equal(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Get User returns user data\", () => {",
+                                    "  pm.expect(body.success).to.equal(true);",
+                                    "  pm.expect(body.data).to.be.an(\"object\");",
+                                    "  pm.expect(body.data.email).to.be.a(\"string\");",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
                     "response": [
                         {
                             "name": "200 OK - Fetch Current User Success",
@@ -551,16 +594,24 @@
                                 "packages": {},
                                 "requests": {},
                                 "exec": [
-                                    "if (pm.response.code === 200) {",
-                                    "  if (pm.response.body && pm.response.body.data && pm.response.body.data.length > 0) {",
-                                    "    const spaceId = pm.response.body.data[0]._id;",
+                                    "const body = pm.response.json();",
                                     "",
-                                    "    pm.variables.set(\"CoworkingSpaceID\", spaceId);",
+                                    "pm.test(\"Get all spaces returns 200\", () => {",
+                                    "  pm.expect(pm.response.code).to.equal(200);",
+                                    "});",
                                     "",
-                                    "    if (typeof pm !== 'undefined') {",
-                                    "      pm.collectionVariables.set(\"CoworkingSpaceID\", spaceId);",
-                                    "    }",
-                                    "  }",
+                                    "pm.test(\"Response contains a data array\", () => {",
+                                    "  pm.expect(body.success).to.equal(true);",
+                                    "  pm.expect(body.data).to.be.an(\"array\");",
+                                    "});",
+                                    "",
+                                    "if (",
+                                    "  pm.response.code === 200 &&",
+                                    "  body.success === true &&",
+                                    "  Array.isArray(body.data) &&",
+                                    "  body.data.length > 0",
+                                    ") {",
+                                    "  pm.variables.set(\"CoworkingSpaceID\", body.data[0]._id);",
                                     "}"
                                 ]
                             }
@@ -711,6 +762,29 @@
                             ]
                         }
                     },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {},
+                                "exec": [
+                                    "const body = pm.response.json();",
+                                    "",
+                                    "pm.test(\"Get space by ID returns 200\", () => {",
+                                    "  pm.expect(pm.response.code).to.equal(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Response contains the requested space\", () => {",
+                                    "  pm.expect(body.success).to.equal(true);",
+                                    "  pm.expect(body.data).to.be.an(\"object\");",
+                                    "  pm.expect(body.data._id).to.equal(pm.variables.get(\"CoworkingSpaceID\"));",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
                     "response": [
                         {
                             "name": "200 OK - Fetch Single Space Success",
@@ -913,10 +987,25 @@
                                 "packages": {},
                                 "requests": {},
                                 "exec": [
-                                    "const response = pm.response.json();",
+                                    "const body = pm.response.json();",
                                     "",
-                                    "if (pm.response.code === 201 && response.data?._id) {",
-                                    "  pm.variables.set(\"CoworkingSpaceID\", response.data._id);",
+                                    "pm.test(\"Create space returns 201\", () => {",
+                                    "  pm.expect(pm.response.code).to.equal(201);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Created space contains an ID\", () => {",
+                                    "  pm.expect(body.success).to.equal(true);",
+                                    "  pm.expect(body.data).to.be.an(\"object\");",
+                                    "  pm.expect(body.data._id).to.be.a(\"string\");",
+                                    "  pm.expect(body.data._id).to.not.be.empty;",
+                                    "});",
+                                    "",
+                                    "if (",
+                                    "  pm.response.code === 201 &&",
+                                    "  body.success === true &&",
+                                    "  body.data?._id",
+                                    ") {",
+                                    "  pm.variables.set(\"CoworkingSpaceID\", body.data._id);",
                                     "}"
                                 ]
                             }
@@ -1122,6 +1211,25 @@
                                     "pm.variables.set('maxCapacity', maxCapacity);"
                                 ]
                             }
+                        },
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {},
+                                "exec": [
+                                    "const body = pm.response.json();",
+                                    "",
+                                    "pm.test(\"Update space returns 200\", () => {",
+                                    "  pm.expect(pm.response.code).to.equal(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Updated space returns success\", () => {",
+                                    "  pm.expect(body.success).to.equal(true);",
+                                    "});"
+                                ]
+                            }
                         }
                     ],
                     "response": [
@@ -1284,6 +1392,27 @@
                             ]
                         }
                     },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {},
+                                "exec": [
+                                    "const body = pm.response.json();",
+                                    "",
+                                    "pm.test(\"Delete space returns 200\", () => {",
+                                    "  pm.expect(pm.response.code).to.equal(200);",
+                                    "});",
+                                    "",
+                                    "pm.test(\"Delete space returns success\", () => {",
+                                    "  pm.expect(body.success).to.equal(true);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ],
                     "response": [
                         {
                             "name": "200 OK - Space Deleted Successfully",

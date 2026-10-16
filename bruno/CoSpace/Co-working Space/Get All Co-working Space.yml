@@ -12,16 +12,24 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        if (res.status === 200) {
-          if (res.body && res.body.data && res.body.data.length > 0) {
-            const spaceId = res.body.data[0]._id;
+        const body = res.getBody();
 
-            bru.setVar("CoworkingSpaceID", spaceId);
+        test("Get all spaces returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
 
-            if (typeof pm !== 'undefined') {
-              pm.collectionVariables.set("CoworkingSpaceID", spaceId);
-            }
-          }
+        test("Response contains a data array", () => {
+          expect(body.success).to.equal(true);
+          expect(body.data).to.be.an("array");
+        });
+
+        if (
+          res.getStatus() === 200 &&
+          body.success === true &&
+          Array.isArray(body.data) &&
+          body.data.length > 0
+        ) {
+          bru.setVar("CoworkingSpaceID", body.data[0]._id);
         }
 
 settings:

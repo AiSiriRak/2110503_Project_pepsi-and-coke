@@ -12,6 +12,22 @@ http:
       type: path
   auth: inherit
 
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Get space by ID returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Response contains the requested space", () => {
+          expect(body.success).to.equal(true);
+          expect(body.data).to.be.an("object");
+          expect(body.data._id).to.equal(bru.getVar("CoworkingSpaceID"));
+        });
+
 settings:
   encodeUrl: true
   timeout: 0

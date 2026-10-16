@@ -57,10 +57,25 @@ runtime:
         bru.setVar('maxCapacity', maxCapacity);
     - type: after-response
       code: |-
-        const response = res.getBody();
+        const body = res.getBody();
 
-        if (res.getStatus() === 201 && response.data?._id) {
-          bru.setVar("CoworkingSpaceID", response.data._id);
+        test("Create space returns 201", () => {
+          expect(res.getStatus()).to.equal(201);
+        });
+
+        test("Created space contains an ID", () => {
+          expect(body.success).to.equal(true);
+          expect(body.data).to.be.an("object");
+          expect(body.data._id).to.be.a("string");
+          expect(body.data._id).to.not.be.empty;
+        });
+
+        if (
+          res.getStatus() === 201 &&
+          body.success === true &&
+          body.data?._id
+        ) {
+          bru.setVar("CoworkingSpaceID", body.data._id);
         }
 
 settings:
