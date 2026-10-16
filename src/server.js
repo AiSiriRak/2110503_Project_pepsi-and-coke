@@ -23,6 +23,10 @@ app.use(express.json());
 // Cookie parser
 app.use(cookieParser());
 
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
 // Mount routers
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/coworking-spaces', coworkingSpaces);
