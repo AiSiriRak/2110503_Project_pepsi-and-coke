@@ -23,7 +23,7 @@ jobs:
     env:
       NODE_ENV: test
       PORT: 5000
-      MONGODB_URI: mongodb://127.0.0.1:27017/pepsi_and_coke_test
+      MONGO_URI: mongodb://127.0.0.1:27017/pepsi_and_coke_test
 
     steps:
       - name: Checkout repository
@@ -50,11 +50,6 @@ jobs:
       - name: Run Format Check
         run: npm run format-check
 
-      - name: Check MongoDB environment
-        run: |
-          node -e "console.log('MONGODB_URI exists:', Boolean(process.env.MONGODB_URI))"
-          node -e "console.log('MONGO_URI exists:', Boolean(process.env.MONGO_URI))"
-
       - name: Start API Server
         run: |
           npm start > server.log 2>&1 &
@@ -62,7 +57,7 @@ jobs:
         env:
           NODE_ENV: test
           PORT: 5000
-          MONGODB_URI: mongodb://127.0.0.1:27017/pepsi_and_coke_test
+          MONGO_URI: mongodb://127.0.0.1:27017/pepsi_and_coke_test
 
       - name: Wait for API Server
         run: |
