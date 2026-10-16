@@ -4,7 +4,7 @@ const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all coworking spaces
 // @route   GET /api/v1/coworking-spaces
-// @access  Protected
+// @access  Public
 exports.getCoworkingSpaces = async (req, res, next) => {
     try {
         let query;
@@ -87,7 +87,7 @@ exports.getCoworkingSpaces = async (req, res, next) => {
 
 // @desc    Get a Co-working Space by ID
 // @route   GET /api/v1/coworking-spaces/:id
-// @access  Protected
+// @access  Public
 exports.getCoworkingSpace = async (req, res, next) => {
     try {
         // Find Co-working Space by ID
