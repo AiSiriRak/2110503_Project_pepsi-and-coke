@@ -13,6 +13,9 @@ jobs:
       NODE_ENV: test
       PORT: 5000
       MONGO_URI: ${{ secrets.MONGO_URI }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_EXPIRE: 30d
+      JWT_COOKIE_EXPIRE: 30
 
     steps:
       - name: Checkout repository
