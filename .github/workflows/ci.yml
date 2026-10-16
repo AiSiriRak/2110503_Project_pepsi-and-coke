@@ -9,21 +9,10 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo:8
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-
     env:
       NODE_ENV: test
       PORT: 5000
-      MONGO_URI: mongodb://127.0.0.1:27017/pepsi_and_coke_test
+      MONGO_URI: ${{ secrets.MONGO_URI }}
 
     steps:
       - name: Checkout repository
@@ -50,19 +39,23 @@ jobs:
       - name: Run Format Check
         run: npm run format-check
 
+      - name: Verify MongoDB configuration
+        run: |
+          if [ -z "$MONGO_URI" ]; then
+            echo "MONGO_URI secret is missing or empty"
+            exit 1
+          fi
+          echo "MONGO_URI is configured"
+
       - name: Start API Server
         run: |
           npm start > server.log 2>&1 &
           echo $! > server.pid
-        env:
-          NODE_ENV: test
-          PORT: 5000
-          MONGO_URI: mongodb://127.0.0.1:27017/pepsi_and_coke_test
 
       - name: Wait for API Server
         run: |
           for i in {1..30}; do
-            if curl --silent http://127.0.0.1:5000/ -o /dev/null; then
+            if curl --silent --fail http://127.0.0.1:5000/ -o /dev/null; then
               echo "API server is responding"
               exit 0
             fi
