@@ -54,6 +54,10 @@ jobs:
         run: |
           npm start > server.log 2>&1 &
           echo $! > server.pid
+        env:
+          NODE_ENV: test
+          PORT: 5000
+          MONGODB_URI: mongodb://127.0.0.1:27017/pepsi_and_coke_test
 
       - name: Wait for API Server
         run: |
@@ -77,7 +81,7 @@ jobs:
           exit 1
 
       - name: Run Newman API Tests
-        run: npx newman run postman.json --env-var "URL=http://127.0.0.1:5000/api/v1"
+        run: npm run test:api
 
       - name: Show Server Logs on Failure
         if: failure()

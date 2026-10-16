@@ -16,7 +16,8 @@
     "main": "src/server.js",
     "scripts": {
         "dev": "nodemon src/server.js",
-        "ci": "npm run type-check && npm run lint && npm run format-check && npm run test",
+        "start": "node src/server.js",
+        "ci": "npm run type-check && npm run lint && npm run format-check && npm run test && npm run test:api",
         "test:api": "newman run postman.json --env-var URL=http://127.0.0.1:5000/api/v1",
         "lint": "eslint .",
         "test": "jest --passWithNoTests",
