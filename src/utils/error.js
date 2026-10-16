@@ -15,12 +15,14 @@ const MSG = {
     NOT_AUTHORIZED: 'Not authorize to access this route',
 
     // 403 Forbidden
-    FORBIDDEN: (role) => `User role ${role} is not authorized to access this route`,
+    FORBIDDEN: (role) =>
+        `User role ${role} is not authorized to access this route`,
 
     // 404 Not Found
     USER_NOT_FOUND: 'User not found',
     RESOURCE_NOT_FOUND: 'Resource not found',
-    COWORKING_SPACE_NOT_FOUND: (id) => `Coworking space not found with ID of ${id}`,
+    COWORKING_SPACE_NOT_FOUND: (id) =>
+        `Coworking space not found with ID of ${id}`,
 
     // 500 Internal Server Error
     SERVER_ERROR: 'Internal server error',

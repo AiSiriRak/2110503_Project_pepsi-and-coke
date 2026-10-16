@@ -25,7 +25,7 @@ exports.getCoworkingSpaces = async (req, res, next) => {
         // Add $ in front of query operator (gt, gte, lt, lte)
         queryStr = queryStr.replace(
             /\b(gt|gte|lt|lte)\b/g,
-            (match) => `$${match}`
+            (match) => `$${match}`,
         );
 
         // Finding resource
@@ -40,7 +40,7 @@ exports.getCoworkingSpaces = async (req, res, next) => {
         // Sort
         if (req.query.sort) {
             const sortBy = req.query.sort.split(',').join(' ');
-            query = query.sort(sortBy)
+            query = query.sort(sortBy);
         } else {
             query = query.sort('-createdAt');
         }
@@ -50,9 +50,7 @@ exports.getCoworkingSpaces = async (req, res, next) => {
         const limit = parseInt(req.query.limit, 10) || 25;
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        const total = await CoworkingSpace.countDocuments(
-            JSON.parse(queryStr)
-        );
+        const total = await CoworkingSpace.countDocuments(JSON.parse(queryStr));
 
         query = query.skip(startIndex).limit(limit);
 
@@ -97,7 +95,12 @@ exports.getCoworkingSpace = async (req, res, next) => {
 
         // Co-working Space with the ID not found
         if (!coworkingSpace) {
-            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND(req.params.id), 404));
+            return next(
+                new ErrorResponse(
+                    MSG.COWORKING_SPACE_NOT_FOUND(req.params.id),
+                    404,
+                ),
+            );
         }
 
         // Found Co-working Space
@@ -108,7 +111,7 @@ exports.getCoworkingSpace = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
 
 // @desc    Create a new Co-working Space
 // @route   POST /api/v1/coworking-spaces
@@ -125,7 +128,7 @@ exports.createCoworkingSpace = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
 
 // @desc    Update a Co-working Space by ID
 // @route   PUT /api/v1/coworking-spaces/:id
@@ -133,14 +136,23 @@ exports.createCoworkingSpace = async (req, res, next) => {
 exports.updateCoworkingSpace = async (req, res, next) => {
     try {
         // Find and update Co-working Space by ID
-        const coworkingSpace = await CoworkingSpace.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        });
+        const coworkingSpace = await CoworkingSpace.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+                runValidators: true,
+            },
+        );
 
         // Co-working Space with the ID not found
         if (!coworkingSpace) {
-            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND(req.params.id), 404));
+            return next(
+                new ErrorResponse(
+                    MSG.COWORKING_SPACE_NOT_FOUND(req.params.id),
+                    404,
+                ),
+            );
         }
 
         // Update success
@@ -151,7 +163,7 @@ exports.updateCoworkingSpace = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
 
 // @desc    Delete a Co-working Space by ID
 // @route   DELETE /api/v1/coworking-spaces/:id
@@ -163,17 +175,22 @@ exports.deleteCoworkingSpace = async (req, res, next) => {
 
         // Co-working Space with the ID not found
         if (!coworkingSpace) {
-            return next(new ErrorResponse(MSG.COWORKING_SPACE_NOT_FOUND(req.params.id), 404));
+            return next(
+                new ErrorResponse(
+                    MSG.COWORKING_SPACE_NOT_FOUND(req.params.id),
+                    404,
+                ),
+            );
         }
 
         // Delete reservation from the Co-working Space with ID
         await Reservation.deleteMany({
-            coworkingSpace: req.params.id
+            coworkingSpace: req.params.id,
         });
 
         // Delete Co-working Space with ID
         await CoworkingSpace.deleteOne({
-            _id: req.params.id
+            _id: req.params.id,
         });
 
         // Delete success
@@ -184,4 +201,4 @@ exports.deleteCoworkingSpace = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
