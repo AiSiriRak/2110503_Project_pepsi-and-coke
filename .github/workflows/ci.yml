@@ -2,36 +2,83 @@ name: Node.js CI
 
 on:
   pull_request:
-    branches: "main"
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      PORT: 5000
+      MONGODB_URI: mongodb://127.0.0.1:27017/pepsi_and_coke_test
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: "npm"
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Check Syntax (Type Check)
+      - name: Check Syntax
         run: npm run type-check
 
       - name: Run Lint
         run: npm run lint
 
-      - name: Run Tests
+      - name: Run Jest Tests
         run: npm run test
-        env:
-          NODE_ENV: test
-          PORT: 5000
+
       - name: Run Format Check
         run: npm run format-check
+
+      - name: Start API Server
+        run: |
+          npm start > server.log 2>&1 &
+          echo $! > server.pid
+
+      - name: Wait for API Server
+        run: |
+          for i in {1..30}; do
+            if curl --silent http://127.0.0.1:5000/ -o /dev/null; then
+              echo "API server is responding"
+              exit 0
+            fi
+
+            if ! kill -0 "$(cat server.pid)" 2>/dev/null; then
+              echo "API server exited unexpectedly"
+              cat server.log
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          echo "API server did not start in time"
+          cat server.log
+          exit 1
+
+      - name: Run Newman API Tests
+        run: npx newman run postman.json --env-var "URL=http://127.0.0.1:5000/api/v1"
+
+      - name: Show Server Logs on Failure
+        if: failure()
+        run: cat server.log || true
