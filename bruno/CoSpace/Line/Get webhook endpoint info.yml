@@ -1,0 +1,18 @@
+info:
+  name: Get webhook endpoint info
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: https://api.line.me/v2/bot/channel/webhook/endpoint
+  auth:
+    type: bearer
+    token: "{{line_token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

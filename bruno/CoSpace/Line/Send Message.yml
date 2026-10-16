@@ -1,0 +1,30 @@
+info:
+  name: Send Message
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: https://api.line.me/v2/bot/message/push
+  body:
+    type: json
+    data: |-
+      {
+        "to": "U1bbaa6139a04ee7d64b28ce9f6a6f259",
+        "messages": [
+          {
+            "type": "text",
+            "text": "Hello, world1"
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{line_token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

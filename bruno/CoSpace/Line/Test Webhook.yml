@@ -1,0 +1,18 @@
+info:
+  name: Test Webhook
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: https://api.line.me/v2/bot/channel/webhook/test
+  auth:
+    type: bearer
+    token: "{{line_token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
