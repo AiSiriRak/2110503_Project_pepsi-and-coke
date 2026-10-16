@@ -1,0 +1,147 @@
+info:
+  name: Get All Co-working Space
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{URL}}/coworking-spaces"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Get all spaces returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Response contains a data array", () => {
+          expect(body.success).to.equal(true);
+          expect(body.data).to.be.an("array");
+        });
+
+        if (
+          res.getStatus() === 200 &&
+          body.success === true &&
+          Array.isArray(body.data) &&
+          body.data.length > 0
+        ) {
+          bru.setVar("CoworkingSpaceID", body.data[0]._id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 OK - Fetch Success with Data
+    description: Fetch all co-working spaces success with pagination and filtering
+    request:
+      url: "{{URL}}/coworking-spaces?select=name,address,telephoneNumber,maximumCapacity&sort=-createdAt&page=1&limit=10"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "count": 1,
+            "pagination": {
+              "next": {
+                "page": 2,
+                "limit": 10
+              }
+            },
+            "data": [
+              {
+                "_id": "670d3e8f8f23a80012ab34cd",
+                "name": "Acme Corp Space",
+                "address": "123 Sukhumvit Rd, Bangkok",
+                "telephoneNumber": "0812345678",
+                "openTime": "08:00",
+                "closeTime": "20:00",
+                "maximumCapacity": 12,
+                "createdAt": "2026-10-14T14:33:37.000Z",
+                "updatedAt": "2026-10-14T14:33:37.000Z",
+                "__v": 0,
+                "id": "670d3e8f8f23a80012ab34cd"
+              }
+            ]
+          }
+  - name: 200 OK - Fetch Success with Empty Array
+    description: Fetch co-working spaces successfully when no records match criteria
+    request:
+      url: "{{URL}}/coworking-spaces?name=NonExistentSpace"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "count": 0,
+            "pagination": {},
+            "data": []
+          }
+  - name: 400 Bad Request - Invalid Query Type
+    description: Invalid query parameter type (e.g. non-numeric value passed to gte)
+    request:
+      url: "{{URL}}/coworking-spaces?maximumCapacity[gte]=invalid_number"
+      method: GET
+    response:
+      status: 400
+      statusText: Bad Request
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Cast to Number failed for value \"invalid_number\" at path \"maximumCapacity\""
+          }
+  - name: 401 Unauthorized - Missing or Invalid Token
+    description: Attempting to fetch resources without sending a valid Bearer token
+    request:
+      url: "{{URL}}/coworking-spaces"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Not authorize to access this route"
+          }
+
+docs: |-
+  An API to fetch all Co-working Spaces with built-in support for filtering, selecting fields, sorting, and pagination.
+
+  Query Parameters:
+  - select: Comma-separated list of fields to include (e.g. ?select=name,address)
+  - sort: Comma-separated list of fields to sort by (e.g. ?sort=-createdAt,name)
+  - page: Page number for pagination (Default: 1)
+  - limit: Maximum number of records per page (Default: 25)
+  - Filtering: Supports comparison operators such as [gt], [gte], [lt], [lte], [in] (e.g. ?maximumCapacity[gte]=10)

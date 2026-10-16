@@ -15,10 +15,24 @@ config:
       bypassProxy: ""
 
 request:
+  auth:
+    type: bearer
+    token: "{{token}} "
   variables:
     - name: URL
       value: http://localhost:5000/api/v1
       description: base api path
+    - name: userEmail
+      value: user@test.com
+      description: user email
+    - name: adminEmail
+      value: admin@test.com
+      description: admin email
+    - name: allUserPassword
+      value: password123
+      description: password
+    - name: CoworkingSpaceID
+      value: ""
 bundled: false
 extensions:
   bruno:

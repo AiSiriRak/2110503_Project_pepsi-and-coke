@@ -1,0 +1,130 @@
+info:
+  name: Login
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{URL}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{email}}",
+        "password": "{{password}}"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Login returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Login response contains a token", () => {
+          expect(body.success).to.equal(true);
+          expect(body.token).to.be.a("string");
+          expect(body.token).to.not.be.empty;
+        });
+
+        if (res.getStatus() === 200 && body.token) {
+          bru.setVar("token", body.token);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 OK - Login Successful
+    description: Authenticate user with valid credentials and update authorization token automatically
+    request:
+      url: "{{URL}}/auth/login"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "email": "johndoe@example.com",
+            "password": "Password123!"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+  - name: 400 Bad Request - Missing Credentials
+    description: Login attempt missing email or password
+    request:
+      url: "{{URL}}/auth/login"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "email": "",
+            "password": ""
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Please provide an email and password."
+          }
+  - name: 401 Unauthorized - Invalid Credentials
+    description: Login attempt with wrong password or non-existent email
+    request:
+      url: "{{URL}}/auth/login"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "email": "johndoe@example.com",
+            "password": "WrongPassword123"
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Invalid credentials"
+          }
+
+docs: |-
+  An API to authenticate an existing user and obtain a JWT access token.
+
+  Request Body Fields:
+  - email: string (Registered user email address)
+  - password: string (User account password)
+
+  Automation Details:
+  - After-response Script: Automatically captures the returned `token` from the response body and stores it into Bruno's `token` variable.

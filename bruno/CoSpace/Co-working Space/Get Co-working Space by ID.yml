@@ -1,0 +1,128 @@
+info:
+  name: Get Co-working Space by ID
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{URL}}/coworking-spaces/:id"
+  params:
+    - name: id
+      value: "{{CoworkingSpaceID}}"
+      type: path
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Get space by ID returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Response contains the requested space", () => {
+          expect(body.success).to.equal(true);
+          expect(body.data).to.be.an("object");
+          expect(body.data._id).to.equal(bru.getVar("CoworkingSpaceID"));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 OK - Fetch Single Space Success
+    description: Fetch a single co-working space by ID successfully
+    request:
+      url: "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "_id": "670d3e8f8f23a80012ab34cd",
+              "name": "Acme Corp Space",
+              "address": "123 Sukhumvit Rd, Bangkok",
+              "telephoneNumber": "0812345678",
+              "openTime": "08:00",
+              "closeTime": "20:00",
+              "maximumCapacity": 12,
+              "createdAt": "2026-10-14T14:33:37.000Z",
+              "updatedAt": "2026-10-14T14:33:37.000Z",
+              "__v": 0,
+              "id": "670d3e8f8f23a80012ab34cd"
+            }
+          }
+  - name: 401 Unauthorized - Missing or Invalid Token
+    description: Attempting to fetch resource without sending a valid Bearer token
+    request:
+      url: "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Not authorize to access this route"
+          }
+  - name: 404 Not Found - Space Not Found
+    description: Co-working space with provided ID does not exist in database
+    request:
+      url: "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab9999"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Coworking space not found with the provided ID"
+          }
+  - name: 404 Not Found - Invalid ObjectId Format
+    description: Provided ID is not a valid MongoDB ObjectId (CastError)
+    request:
+      url: "{{URL}}/coworking-spaces/invalid_id"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Resource not found"
+          }
+
+docs: |-
+  An API to fetch details of a specific Co-working Space by its unique MongoDB ObjectId.
+
+  Path Parameters:
+  - id: The 24-character hex ObjectId of the target co-working space (`{{CoworkingSpaceID}}`).

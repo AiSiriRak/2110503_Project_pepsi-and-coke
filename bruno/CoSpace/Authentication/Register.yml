@@ -1,0 +1,167 @@
+info:
+  name: Register
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{URL}}/auth/register"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "{{username}}",
+        "telephoneNumber": "{{telephoneNumber}}",
+        "email": "{{email}}",
+        "password": "{{password}}",
+        "role": "admin"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Generate a username
+        const username = bru.interpolate('{{$randomUserName}}');
+        bru.setVar("username", username);
+
+        // Generate an email
+        const email = bru.interpolate('{{$randomEmail}}').toLowerCase();
+        bru.setVar("email", email);
+
+        // Generate a password
+        const password = bru.interpolate('{{$randomPassword}}');
+        bru.setVar("password", password);
+
+        // Generate a Thai telephone number
+        const prefixes = ['06', '08', '09'];
+        const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+        const thaiPhone = `${randomPrefix}${randomNumber}`;
+
+        bru.setVar('telephoneNumber', thaiPhone);
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Register returns 200 or 201", () => {
+          expect([200, 201]).to.include(res.getStatus());
+        });
+
+        test("Register returns success and token", () => {
+          expect(body.success).to.equal(true);
+          expect(body.token).to.be.a("string");
+          expect(body.token).to.not.be.empty;
+        });
+
+        if ([200, 201].includes(res.getStatus()) && body.token) {
+          bru.setVar("registeredToken", body.token);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 OK - Registration Successful
+    description: Register a new user account with randomized data and save token automatically
+    request:
+      url: "{{URL}}/auth/register"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "johndoe",
+            "telephoneNumber": "0812345678",
+            "email": "johndoe@example.com",
+            "password": "Password123!",
+            "role": "admin"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+  - name: 400 Bad Request - Email Already Registered
+    description: Registration failed due to duplicate email address
+    request:
+      url: "{{URL}}/auth/register"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "johndoe",
+            "telephoneNumber": "0812345678",
+            "email": "existing@example.com",
+            "password": "Password123!",
+            "role": "user"
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Email is already registered."
+          }
+  - name: 400 Bad Request - Validation Error
+    description: Registration failed due to missing required fields or invalid password length
+    request:
+      url: "{{URL}}/auth/register"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "",
+            "telephoneNumber": "0812345678",
+            "email": "invalid-email",
+            "password": "123",
+            "role": "user"
+          }
+    response:
+      status: 400
+      statusText: Bad Request
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Please add a name, Please add a valid email, Password must be at least 6 characters"
+          }
+
+docs: |-
+  An API to register a new user or admin account.
+
+  Request Body Fields:
+  - name: string (User display name)
+  - telephoneNumber: string (Thai phone number format)
+  - email: string (Unique valid email address)
+  - password: string (Minimum 6 characters)
+  - role: string (Optional, e.g. 'user' or 'admin')
+
+  Automation Details:
+  - Pre-request Script: Dynamically generates randomized username, email, password, and Thai telephone number.
+  - After-response Script: Automatically captures the received `token` from the response body and stores it into Bruno environment variable `token`.

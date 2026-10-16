@@ -1,0 +1,110 @@
+info:
+  name: Delete Co-working Space
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{URL}}/coworking-spaces/:id"
+  params:
+    - name: id
+      value: "{{CoworkingSpaceID}}"
+      type: path
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Delete space returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Delete space returns success", () => {
+          expect(body.success).to.equal(true);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 OK - Space Deleted Successfully
+    description: Delete a co-working space by ID
+    request:
+      url: "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd"
+      method: DELETE
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {}
+          }
+  - name: 401 Unauthorized - Missing or Invalid Token
+    description: Request failed due to missing or invalid Bearer token
+    request:
+      url: "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd"
+      method: DELETE
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Not authorize to access this route"
+          }
+  - name: 403 Forbidden - Insufficient Permissions
+    description: User role is 'user' instead of 'admin'
+    request:
+      url: "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab34cd"
+      method: DELETE
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "User role user is not authorized to access this route"
+          }
+  - name: 404 Not Found - Space Not Found
+    description: Co-working space ID not found in database
+    request:
+      url: "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab9999"
+      method: DELETE
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Coworking space not found with the provided ID"
+          }
+
+docs: An API to remove a Co-working Space from the database by ID (Admin only).
