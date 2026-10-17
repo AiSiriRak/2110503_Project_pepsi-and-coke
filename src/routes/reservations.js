@@ -2,13 +2,24 @@ const express = require('express');
 
 const { protect, authorize } = require('../middleware/auth');
 const {
-    // controllers functions
+    getReservations,
+    getReservation,
+    createReservation,
+    updateResrvation,
+    deleteReservation,
 } = require('../controllers/reservations');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
-router.route('/');
+router
+    .route('/')
+    .get(protect, getReservations)
+    .post(protect, createReservation);
 
-router.route('/:id');
+router
+    .route('/:id')
+    .get(protect, getReservation)
+    .put(protect, updateResrvation)
+    .delete(protect, deleteReservation);
 
 module.exports = router;

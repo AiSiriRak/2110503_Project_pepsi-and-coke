@@ -10,7 +10,18 @@ http:
     - name: id
       value: "{{ReservationID}}"
       type: path
+  body:
+    type: json
+    data: |-
+      {
+          "reserveDate" : "2022-10-02T17:00:00.000Z"
+      }
   auth: inherit
+
+runtime:
+  variables:
+    - name: ReservationID
+      value: ""
 
 settings:
   encodeUrl: true

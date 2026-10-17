@@ -10,6 +10,8 @@ const MSG = {
     MISSING_CREDENTIALS: 'Please provide an email and password.',
     EMAIL_ALREADY_REGISTERED: 'Email is already registered.',
     WRONG_OBJECT_ID_FORMAT: 'Wrong object ID format',
+    RESERVATION_LIMIT: (id) =>
+        `The user with ID ${id} has already made 3 reservations.`,
 
     // 401 Unauthorized
     INVALID_CREDENTIALS: 'Invalid credentials',
@@ -23,6 +25,7 @@ const MSG = {
     USER_NOT_FOUND: 'User not found',
     COWORKING_SPACE_NOT_FOUND: (id) =>
         `Coworking space not found with ID of ${id}`,
+    RESERVATION_NOT_FOUND: (id) => `Reservation not found with ID of ${id}`,
 
     // 500 Internal Server Error
     SERVER_ERROR: 'Internal server error',

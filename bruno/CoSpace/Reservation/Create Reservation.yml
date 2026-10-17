@@ -5,7 +5,13 @@ info:
 
 http:
   method: POST
-  url: "{{URL}}/reservations"
+  url: "{{URL}}/coworking-spaces/{{CoworkingSpaceID}}/reservations"
+  body:
+    type: json
+    data: |-
+      {
+          "reserveDate" : "2021-10-02T17:00:00.000Z"
+      }
   auth: inherit
 
 settings:
