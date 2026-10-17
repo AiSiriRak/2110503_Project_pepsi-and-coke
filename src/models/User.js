@@ -46,6 +46,10 @@ const UserSchema = new mongoose.Schema(
 
         // Reset password expire timestamp
         resetPasswordExpire: Date,
+
+        lineUserId: { type: String, unique: true, sparse: true },
+        lineLinkCode: String,
+        lineLinkCodeExpire: Date,
     },
     {
         // Timestamp for created at and updated at

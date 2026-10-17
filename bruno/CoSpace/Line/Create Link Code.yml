@@ -1,0 +1,85 @@
+info:
+  name: Create Link Code
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{URL}}/line/link-code"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Get link code returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Response contains valid 6-digit link code", () => {
+          expect(body.success).to.equal(true);
+          expect(body.code).to.be.a("string");
+          expect(body.code).to.have.lengthOf(6);
+          expect(body.expiresInMinutes).to.equal(10);
+        });
+
+        if (body.success && body.code) {
+          bru.setVar("lineLinkCode", body.code);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 OK - Generate Link Code Success
+    description: Successfully generated temporary 6-digit verification code for LINE account linking
+    request:
+      url: "{{URL}}/line/link-code"
+      method: POST
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "code": "582914",
+            "expiresInMinutes": 10
+          }
+  - name: 401 Unauthorized - Missing or Invalid Token
+    description: Attempting to generate link code without sending a valid Bearer token
+    request:
+      url: "{{URL}}/line/link-code"
+      method: POST
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Not authorize to access this route"
+          }
+
+docs: |-
+  An API to generate a temporary 6-digit verification code used for linking the authenticated user's account with the LINE Official Account.
+
+  Authentication:
+  - Requires Bearer Token in Authorization header (`{{token}}`).
+
+  Automation Details:
+  - After-response Script: Verifies HTTP 200 status, validates the 6-digit string format, and automatically stores the generated `code` into the `lineLinkCode` variable for testing LINE bot interactions.

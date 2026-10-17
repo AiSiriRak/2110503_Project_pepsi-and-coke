@@ -4,6 +4,11 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/error');
 
+const line = require('@line/bot-sdk');
+const { handleWebhook } = require('./controllers/line');
+const lineRoutes = require('./routes/line');
+// const { startReminderJob } = require('./utils/reminder');
+
 // Route files
 const auth = require('./routes/auth');
 const coworkingSpaces = require('./routes/coworkingSpaces');
@@ -16,6 +21,13 @@ connectDB();
 
 const app = express();
 app.set('query parser', 'extended');
+
+// Create Line Webhook endpoint
+app.post(
+    '/api/v1/line/webhook',
+    line.middleware({ channelSecret: process.env.LINE_CHANNEL_SECRET }),
+    handleWebhook,
+);
 
 // Body parser
 app.use(express.json());
@@ -30,6 +42,7 @@ app.get('/health', (req, res) => {
 // Mount routers
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/coworking-spaces', coworkingSpaces);
+app.use('/api/v1/line', lineRoutes);
 
 app.use(errorHandler);
 
@@ -43,6 +56,8 @@ const server = app.listen(
         PORT,
     ),
 );
+
+// startReminderJob();
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, _promise) => {
