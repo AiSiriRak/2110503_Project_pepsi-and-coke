@@ -66,6 +66,24 @@ examples:
               "id": "670d3e8f8f23a80012ab34cd"
             }
           }
+  - name: 400 Bad Request - Invalid ObjectId Format
+    description: Co-working space with provided ID does not exist in database
+    request:
+      url: "{{URL}}/coworking-spaces/670d3e8f8f23a80012ab9999"
+      method: GET
+    response:
+      status: 400
+      statusText: Bad Request
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Wrong object ID format"
+          }
   - name: 401 Unauthorized - Missing or Invalid Token
     description: Attempting to fetch resource without sending a valid Bearer token
     request:
@@ -101,24 +119,6 @@ examples:
           {
             "success": false,
             "message": "Coworking space not found with the provided ID"
-          }
-  - name: 404 Not Found - Invalid ObjectId Format
-    description: Provided ID is not a valid MongoDB ObjectId (CastError)
-    request:
-      url: "{{URL}}/coworking-spaces/invalid_id"
-      method: GET
-    response:
-      status: 404
-      statusText: Not Found
-      headers:
-        - name: content-type
-          value: application/json; charset=utf-8
-      body:
-        type: json
-        data: |-
-          {
-            "success": false,
-            "message": "Resource not found"
           }
 
 docs: |-
