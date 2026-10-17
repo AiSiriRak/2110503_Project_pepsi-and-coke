@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { protect, authorize } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 const {
     getReservations,
     getReservation,

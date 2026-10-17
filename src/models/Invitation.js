@@ -20,8 +20,8 @@ const InvitationSchema = new mongoose.Schema(
         status: {
             type: String,
             enum: ['wait', 'accepted', 'declined'],
-            default: 'wait'
-        }
+            default: 'wait',
+        },
     },
     {
         // Timestamp for created at and updated at
@@ -30,9 +30,6 @@ const InvitationSchema = new mongoose.Schema(
 );
 
 // Create Compound Unique Index: 1 Reservation per 1 User
-InvitationSchema.index(
-    { reservation: 1, user: 1 },
-    { unique: true }
-);
+InvitationSchema.index({ reservation: 1, user: 1 }, { unique: true });
 
 module.exports = mongoose.model('Invitation', InvitationSchema);

@@ -9,15 +9,17 @@ exports.getReservations = async (req, res, next) => {
     let query;
 
     if (req.user.role !== 'admin') {
-        //General users can see only their reservations
-        query = Reservation.find({ user: req.user.id }).populate({
+        // General users can see only their reservations
+        query = Reservation.find({
+            $or: [{ user: req.user.id }, { cobooker: req.user.id }],
+        }).populate({
             path: 'coworkingSpace',
             select: 'name address telephoneNumber openTime closeTime maximumCapacity',
         });
     } else {
-        //Admin can see all reservations
+        // Admin can see all reservations
         if (req.params.CoworkingSpaceId) {
-            query = Appointment.find({
+            query = Reservation.find({
                 CoworkingSpace: req.params.coworkingSpaceId,
             }).populate({
                 path: 'coworkingSpace',
@@ -33,7 +35,6 @@ exports.getReservations = async (req, res, next) => {
     try {
         // Executing query
         const reservation = await query;
-
         res.status(200).json({
             success: true,
             count: reservation.length,
@@ -51,6 +52,16 @@ exports.getReservation = async (req, res, next) => {
     try {
         // Find Reservation by ID
         const reservation = await Reservation.findById(req.params.id);
+
+        // Check if user is owner/co-booker/admin
+        if (
+            !reservation.user.toString() === req.user.id &&
+            !reservation.cobooker.some(
+                (userId) => userId.toString() === req.user.id,
+            ) &&
+            !req.user.role === 'admin'
+        )
+            return next(new ErrorResponse(MSG.NOT_AUTHORIZED, 401));
 
         // Reservation with the ID not found
         if (!reservation) {
@@ -91,15 +102,15 @@ exports.createReservation = async (req, res, next) => {
                 ),
             );
 
-        //add user Id to req.body
+        // Add user Id to req.body
         req.body.user = req.user.id;
 
-        //Check for existed appointment
+        // Check for existed appointment
         const existedReservations = await Reservation.find({
             user: req.user.id,
         });
 
-        //If the user is not an admin, they can only create 3 appointment.
+        // If the user is not an admin, they can only create 3 appointment.
         if (existedReservations.length >= 3 && req.user.role !== 'admin')
             return next(
                 new ErrorResponse(MSG.RESERVATION_LIMIT(req.user.id), 400),
@@ -128,7 +139,7 @@ exports.updateResrvation = async (req, res, next) => {
                 ),
             );
 
-        //Make sure user is the appointment owner
+        // Make sure user is the appointment owner
         if (
             reservation.user.toString() !== req.user.id &&
             req.user.role !== 'admin'
@@ -165,7 +176,7 @@ exports.deleteReservation = async (req, res, next) => {
                 ),
             );
 
-        //Make sure user is the reservation owner
+        // Make sure user is the reservation owner
         if (
             reservation.user.toString() !== req.user.id &&
             req.user.role !== 'admin'
