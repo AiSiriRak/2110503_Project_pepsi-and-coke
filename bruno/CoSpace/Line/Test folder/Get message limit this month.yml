@@ -1,11 +1,11 @@
 info:
-  name: Test Webhook
+  name: Get message limit this month
   type: http
-  seq: 2
+  seq: 4
 
 http:
-  method: POST
-  url: https://api.line.me/v2/bot/channel/webhook/test
+  method: GET
+  url: https://api.line.me/v2/bot/message/quota
   auth:
     type: bearer
     token: "{{line_token}}"

@@ -33,6 +33,8 @@ request:
       description: password
     - name: CoworkingSpaceID
       value: ""
+    - name: token
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDEyYTRiZGQ5YzRkMDA2ZWU1YzIxYyIsImlhdCI6MTc5MjIyODQ1MSwiZXhwIjoxNzk0ODIwNDUxfQ.zuPblSk7h1ZtzorgRxNt6U_mGAxmyAvxo2Z_oYZ7Wpk
 bundled: false
 extensions:
   bruno:

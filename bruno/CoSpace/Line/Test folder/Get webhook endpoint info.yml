@@ -1,14 +1,14 @@
 info:
-  name: Get Link Code
+  name: Get webhook endpoint info
   type: http
-  seq: 6
+  seq: 2
 
 http:
-  method: POST
-  url: "{{URL}}/line/link-code"
+  method: GET
+  url: https://api.line.me/v2/bot/channel/webhook/endpoint
   auth:
     type: bearer
-    token: "{{token}}"
+    token: "{{line_token}}"
 
 settings:
   encodeUrl: true

@@ -1,11 +1,11 @@
 info:
-  name: Get webhook endpoint info
+  name: Test Webhook
   type: http
   seq: 4
 
 http:
-  method: GET
-  url: https://api.line.me/v2/bot/channel/webhook/endpoint
+  method: POST
+  url: https://api.line.me/v2/bot/channel/webhook/test
   auth:
     type: bearer
     token: "{{line_token}}"

@@ -1,7 +1,7 @@
 info:
   name: Get message sent this month
   type: http
-  seq: 3
+  seq: 2
 
 http:
   method: GET
