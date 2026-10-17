@@ -51,6 +51,9 @@ jobs:
           echo "MONGO_URI is configured"
 
       - name: Start API Server
+        env:
+          LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
         run: |
           npm start > server.log 2>&1 &
           echo $! > server.pid
