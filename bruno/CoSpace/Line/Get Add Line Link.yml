@@ -1,0 +1,80 @@
+info:
+  name: Get Add Friend Link
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{URL}}/line/add-friend"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Get add friend link returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Response contains valid LINE add-friend URL", () => {
+          expect(body.success).to.equal(true);
+          expect(body.link).to.be.a("string");
+          expect(body.link).to.include("line.me");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+examples:
+  - name: 200 OK - Fetch Add Friend Link Success
+    description: Successfully retrieved the LINE Official Account add-friend URL
+    request:
+      url: "{{URL}}/line/add-friend"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "link": "https://lin.ee/Qp3cqaj"
+          }
+  - name: 401 Unauthorized - Missing or Invalid Token
+    description: Attempting to fetch add-friend link without sending a valid Bearer token
+    request:
+      url: "{{URL}}/line/add-friend"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: content-type
+          value: application/json; charset=utf-8
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Not authorize to access this route"
+          }
+
+docs: |-
+  An API to retrieve the official LINE Official Account (OA) add-friend link URL.
+
+  Authentication:
+  - Requires Bearer Token in Authorization header (`{{token}}`).
+
+  Responses:
+  - 200 OK: Returns `success: true` along with the LINE OA add-friend URL (`link`).
+  - 401 Unauthorized: Token missing, invalid, or expired.

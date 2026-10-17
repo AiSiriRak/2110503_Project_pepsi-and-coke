@@ -5,9 +5,9 @@ const errorHandler = (err, req, res, next) => {
     let message = err.message;
 
     // Bad ObjectId
-    if (err.name === 'CastError') {
-        statusCode = 404;
-        message = MSG.RESOURCE_NOT_FOUND || 'Resource not found';
+    if (err.name === 'CastError' && err.kind === 'ObjectId') {
+        statusCode = 400;
+        message = MSG.WRONG_OBJECT_ID_FORMAT || 'Wrong object ID format';
     }
 
     // Mongoose validation error (missing field, invalid email, short password)

@@ -1,0 +1,18 @@
+info:
+  name: Get message sent this month
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: https://api.line.me/v2/bot/message/quota/consumption
+  auth:
+    type: bearer
+    token: "{{line_token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
