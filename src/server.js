@@ -13,6 +13,7 @@ const lineRoutes = require('./routes/line');
 const auth = require('./routes/auth');
 const coworkingSpaces = require('./routes/coworkingSpaces');
 const reservations = require('./routes/reservations');
+const invitations = require('./routes/invitations')
 
 // Load env vars
 dotenv.config({ path: './src/config/config.env' });
@@ -23,9 +24,12 @@ connectDB();
 const app = express();
 app.set('query parser', 'extended');
 
+// API Version Prefix
+const API_VER = '/api/v1';
+
 // Create Line Webhook endpoint
 app.post(
-    '/api/v1/line/webhook',
+    `${API_VER}/line/webhook`,
     line.middleware({ channelSecret: process.env.LINE_CHANNEL_SECRET }),
     handleWebhook,
 );
@@ -41,10 +45,11 @@ app.get('/health', (req, res) => {
 });
 
 // Mount routers
-app.use('/api/v1/auth', auth);
-app.use('/api/v1/coworking-spaces', coworkingSpaces);
-app.use('/api/v1/reservations', reservations);
-app.use('/api/v1/line', lineRoutes);
+app.use(`${API_VER}/auth`, auth);
+app.use(`${API_VER}/coworking-spaces`, coworkingSpaces);
+app.use(`${API_VER}/reservations`, reservations);
+app.use(`${API_VER}/invitations`, invitations);
+app.use(`${API_VER}/line`, lineRoutes);
 
 app.use(errorHandler);
 
