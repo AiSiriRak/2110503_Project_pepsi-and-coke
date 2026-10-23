@@ -5,7 +5,13 @@ info:
 
 http:
   method: POST
-  url: "{{URL}}/invitations"
+  url: "{{URL}}/reservations/{{ReservationID}}/invitations"
+  body:
+    type: json
+    data: |-
+      {
+        "userId": "{{User2ID}}"
+      }
   auth: inherit
 
 settings:

@@ -22,15 +22,24 @@ request:
     - name: URL
       value: http://localhost:5000/api/v1
       description: base api path
-    - name: userEmail
-      value: user@test.com
-      description: user email
+    - name: user1Email
+      value: user1@test.com
+      description: user 1 email
+    - name: user2Email
+      value: user2@test.com
+      description: user 2 email
     - name: adminEmail
       value: admin@test.com
       description: admin email
     - name: allUserPassword
       value: password123
       description: password
+    - name: User1ID
+      value: 6ad12a54dd9c4d006ee5c21d
+      description: user 1 id
+    - name: User2ID
+      value: 6adbc362b05483b1fed340da
+      description: user 2 id
     - name: CoworkingSpaceID
       value: ""
     - name: token

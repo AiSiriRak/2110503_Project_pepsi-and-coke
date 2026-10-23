@@ -1,7 +1,7 @@
 info:
-  name: User Login
+  name: User Login 1
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-          "email": "{{userEmail}}",
+          "email": "{{user1Email}}",
           "password": "{{allUserPassword}}"
       }
   auth: inherit

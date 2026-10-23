@@ -19,6 +19,11 @@ http:
   auth: inherit
 
 runtime:
+  variables:
+    - name: email
+      value: user2@test.com
+    - name: password
+      value: password123
   scripts:
     - type: before-request
       code: |-
