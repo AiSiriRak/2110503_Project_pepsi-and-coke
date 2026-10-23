@@ -13,7 +13,7 @@ const lineRoutes = require('./routes/line');
 const auth = require('./routes/auth');
 const coworkingSpaces = require('./routes/coworkingSpaces');
 const reservations = require('./routes/reservations');
-const invitations = require('./routes/invitations')
+const invitations = require('./routes/invitations');
 
 // Load env vars
 dotenv.config({ path: './src/config/config.env' });

@@ -5,11 +5,11 @@ const {
     getInvitations,
     getInvitation,
     createInvitation,
-    updateInvitation,
+    respondInvitation,
     deleteInvitation,
 } = require('../controllers/invitations');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router
     .route('/')
@@ -19,7 +19,7 @@ router
 router
     .route('/:id')
     .get(protect, getInvitation)
-    .put(protect, updateInvitation)
+    .put(protect, respondInvitation)
     .delete(protect, deleteInvitation);
 
 module.exports = router;

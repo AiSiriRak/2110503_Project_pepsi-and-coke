@@ -25,7 +25,11 @@ const errorHandler = (err, req, res, next) => {
 
         if (keys.includes('email')) {
             message = MSG.EMAIL_ALREADY_REGISTERED;
-        } else if (keys.includes('coworkingSpace') || keys.includes('reserveDate') || keys.includes('bookingDateString')) {
+        } else if (
+            keys.includes('coworkingSpace') ||
+            keys.includes('reserveDate') ||
+            keys.includes('bookingDateString')
+        ) {
             message = MSG.COWORKING_SPACE_ALREADY_RESERVED;
         } else if (keys.includes('reservation') && keys.includes('user')) {
             message = MSG.USER_ALREADY_INVITED;

@@ -52,11 +52,10 @@ exports.getReservations = async (req, res, next) => {
 exports.getReservation = async (req, res, next) => {
     try {
         // Find Reservation by ID
-        const reservation = await Reservation.findById(req.params.id)
-            .populate({
-                path: 'coworkingSpace',
-                select: 'name address telephoneNumber openTime closeTime maximumCapacity',
-            });
+        const reservation = await Reservation.findById(req.params.id).populate({
+            path: 'coworkingSpace',
+            select: 'name address telephoneNumber openTime closeTime maximumCapacity',
+        });
 
         // Reservation with the ID not found
         if (!reservation) {
@@ -110,7 +109,7 @@ exports.createReservation = async (req, res, next) => {
         // Add user Id to req.body
         req.body.user = req.user.id;
 
-        // Check for existed appointment
+        // Check for existed reservation
         const existedReservations = await Reservation.find({
             user: req.user.id,
         });
@@ -123,7 +122,10 @@ exports.createReservation = async (req, res, next) => {
 
         const reservation = await Reservation.create(req.body);
 
-        res.status(201).json({ success: true, data: reservation });
+        res.status(201).json({
+            success: true,
+            data: reservation,
+        });
     } catch (error) {
         next(error);
     }
@@ -160,7 +162,10 @@ exports.updateReservation = async (req, res, next) => {
             },
         );
 
-        res.status(200).json({ success: true, data: reservation });
+        res.status(200).json({
+            success: true,
+            data: reservation,
+        });
     } catch (error) {
         next(error);
     }
@@ -197,7 +202,10 @@ exports.deleteReservation = async (req, res, next) => {
         // Delete Reservation
         await reservation.deleteOne();
 
-        res.status(200).json({ success: true, data: {} });
+        res.status(200).json({
+            success: true,
+            data: {},
+        });
     } catch (error) {
         next(error);
     }

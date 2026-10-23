@@ -9,7 +9,13 @@ const {
     deleteReservation,
 } = require('../controllers/reservations');
 
+// Include other resource routers
+const invitationRouter = require('./invitations');
+
 const router = express.Router({ mergeParams: true });
+
+// Re-route into other resource routers
+router.use('/:reservationId/invitations/', invitationRouter);
 
 router
     .route('/')
