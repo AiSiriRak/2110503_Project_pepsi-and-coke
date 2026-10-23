@@ -1,0 +1,16 @@
+info:
+  name: Create Invitation
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{URL}}/invitations"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

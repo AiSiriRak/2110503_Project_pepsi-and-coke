@@ -1,5 +1,5 @@
 info:
-  name: Get All Co-working Space
+  name: Get All Co-working Spaces
   type: http
   seq: 1
 
