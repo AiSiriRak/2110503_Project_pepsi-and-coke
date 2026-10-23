@@ -14,7 +14,7 @@ http:
     type: json
     data: |-
       {
-          "reserveDate" : "2022-10-02T17:00:00.000Z"
+          "reserveDate" : "2022-10-02"
       }
   auth: inherit
 

@@ -8,6 +8,30 @@ http:
   url: "{{URL}}/reservations"
   auth: inherit
 
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        test("Get all reservations returns 200", () => {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Response contains a data array", () => {
+          expect(body.success).to.equal(true);
+          expect(body.data).to.be.an("array");
+        });
+
+        if (
+          res.getStatus() === 200 &&
+          body.success === true &&
+          Array.isArray(body.data) &&
+          body.data.length > 0
+        ) {
+          bru.setVar("ReservationID", body.data[0]._id);
+        }
+
 settings:
   encodeUrl: true
   timeout: 0
