@@ -1,5 +1,6 @@
 const CoworkingSpace = require('../models/CoworkingSpace');
 const Reservation = require('../models/Reservation');
+const Invitation = require('../models/Invitation');
 const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all reservations
@@ -51,7 +52,11 @@ exports.getReservations = async (req, res, next) => {
 exports.getReservation = async (req, res, next) => {
     try {
         // Find Reservation by ID
-        const reservation = await Reservation.findById(req.params.id);
+        const reservation = await Reservation.findById(req.params.id)
+            .populate({
+                path: 'coworkingSpace',
+                select: 'name address telephoneNumber openTime closeTime maximumCapacity',
+            });
 
         // Reservation with the ID not found
         if (!reservation) {
@@ -184,6 +189,12 @@ exports.deleteReservation = async (req, res, next) => {
             return next(new ErrorResponse(MSG.NOT_RESOURCE_OWNER, 403));
         }
 
+        // Cascade delete all invitations related to this reservation
+        await Invitation.deleteMany({
+            reservation: req.params.id,
+        });
+
+        // Delete Reservation
         await reservation.deleteOne();
 
         res.status(200).json({ success: true, data: {} });

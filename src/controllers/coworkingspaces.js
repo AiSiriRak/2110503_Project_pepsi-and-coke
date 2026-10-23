@@ -1,5 +1,6 @@
 const CoworkingSpace = require('../models/CoworkingSpace');
 const Reservation = require('../models/Reservation');
+const Invitation = require('../models/Invitation');
 const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all coworking spaces
@@ -29,7 +30,11 @@ exports.getCoworkingSpaces = async (req, res, next) => {
         );
 
         // Finding resource
-        query = CoworkingSpace.find(JSON.parse(queryStr));
+        query = CoworkingSpace.find(JSON.parse(queryStr))
+            .populate({
+                path: 'reservations',
+                select: 'reserveDate user'
+            });
 
         // Select Fields
         if (req.query.select) {
@@ -181,6 +186,18 @@ exports.deleteCoworkingSpace = async (req, res, next) => {
                     404,
                 ),
             );
+        }
+
+        // Get all reservation IDs of the Co-working Space
+        const reservationIds = await Reservation.distinct('_id', {
+            coworkingSpace: req.params.id,
+        });
+
+        // Delete Invitation that are relate the Co-working Space
+        if (reservationIds.length > 0) {
+            await Invitation.deleteMany({
+                reservation: { $in: reservationIds },
+            });
         }
 
         // Delete reservation from the Co-working Space with ID
