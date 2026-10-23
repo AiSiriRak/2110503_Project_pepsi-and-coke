@@ -2,9 +2,9 @@ const CoworkingSpace = require('../models/CoworkingSpace');
 const Reservation = require('../models/Reservation');
 const { ErrorResponse, MSG } = require('../utils/error');
 
-// @desc       Get all reservations
-// @route      GET /api/v1/reservations
-// @access     Public
+// @desc    Get all reservations
+// @route   GET /api/v1/reservations
+// @access  Private
 exports.getReservations = async (req, res, next) => {
     let query;
 
@@ -18,9 +18,9 @@ exports.getReservations = async (req, res, next) => {
         });
     } else {
         // Admin can see all reservations
-        if (req.params.CoworkingSpaceId) {
+        if (req.params.coworkingSpaceId) {
             query = Reservation.find({
-                CoworkingSpace: req.params.coworkingSpaceId,
+                coworkingSpace: req.params.coworkingSpaceId,
             }).populate({
                 path: 'coworkingSpace',
                 select: 'name address telephoneNumber openTime closeTime maximumCapacity',
@@ -45,23 +45,13 @@ exports.getReservations = async (req, res, next) => {
     }
 };
 
-// @desc       Get single reservation
-// @route      GET /api/v1/reservations/:id
-// @access     Public
+// @desc    Get single reservation
+// @route   GET /api/v1/reservations/:id
+// @access  Private
 exports.getReservation = async (req, res, next) => {
     try {
         // Find Reservation by ID
         const reservation = await Reservation.findById(req.params.id);
-
-        // Check if user is owner/co-booker/admin
-        if (
-            !reservation.user.toString() === req.user.id &&
-            !reservation.cobooker.some(
-                (userId) => userId.toString() === req.user.id,
-            ) &&
-            !req.user.role === 'admin'
-        )
-            return next(new ErrorResponse(MSG.NOT_AUTHORIZED, 401));
 
         // Reservation with the ID not found
         if (!reservation) {
@@ -73,6 +63,16 @@ exports.getReservation = async (req, res, next) => {
             );
         }
 
+        // Check if user is owner/co-booker/admin
+        if (
+            reservation.user.toString() !== req.user.id &&
+            !reservation.cobooker.some(
+                (userId) => userId.toString() === req.user.id,
+            ) &&
+            req.user.role !== 'admin'
+        )
+            return next(new ErrorResponse(MSG.NOT_RESOURCE_OWNER, 403));
+
         // Found Reservation
         res.status(200).json({
             success: true,
@@ -83,9 +83,9 @@ exports.getReservation = async (req, res, next) => {
     }
 };
 
-// @desc       Create a reservation
-// @route      POST  /api/v1/coworking-spaces/:coworkingSpaceId/reservations
-// @access     Private
+// @desc    Create a reservation
+// @route   POST /api/v1/coworking-spaces/:coworkingSpaceId/reservations
+// @access  Private
 exports.createReservation = async (req, res, next) => {
     try {
         req.body.coworkingSpace = req.params.coworkingSpaceId;
@@ -124,10 +124,10 @@ exports.createReservation = async (req, res, next) => {
     }
 };
 
-// @desc       Update reservation
-// @route      PUT  /api/v1/reservations/:id
-// @access     Private
-exports.updateResrvation = async (req, res, next) => {
+// @desc    Update reservation
+// @route   PUT /api/v1/reservations/:id
+// @access  Private
+exports.updateReservation = async (req, res, next) => {
     try {
         let reservation = await Reservation.findById(req.params.id);
 
@@ -144,7 +144,7 @@ exports.updateResrvation = async (req, res, next) => {
             reservation.user.toString() !== req.user.id &&
             req.user.role !== 'admin'
         )
-            return next(new ErrorResponse(MSG.NOT_AUTHORIZED, 401));
+            return next(new ErrorResponse(MSG.NOT_RESOURCE_OWNER, 403));
 
         reservation = await Reservation.findByIdAndUpdate(
             req.params.id,
@@ -161,9 +161,9 @@ exports.updateResrvation = async (req, res, next) => {
     }
 };
 
-// @desc       Delete reservation
-// @route      DELETE  /api/v1/reservations/:id
-// @access     Private
+// @desc    Delete reservation
+// @route   DELETE  /api/v1/reservations/:id
+// @access  Private
 exports.deleteReservation = async (req, res, next) => {
     try {
         const reservation = await Reservation.findById(req.params.id);
@@ -181,7 +181,7 @@ exports.deleteReservation = async (req, res, next) => {
             reservation.user.toString() !== req.user.id &&
             req.user.role !== 'admin'
         ) {
-            return next(new ErrorResponse(MSG.NOT_AUTHORIZED, 401));
+            return next(new ErrorResponse(MSG.NOT_RESOURCE_OWNER, 403));
         }
 
         await reservation.deleteOne();
