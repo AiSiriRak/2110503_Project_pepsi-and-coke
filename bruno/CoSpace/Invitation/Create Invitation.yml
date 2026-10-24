@@ -1,0 +1,22 @@
+info:
+  name: Create Invitation
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{URL}}/reservations/{{ReservationID}}/invitations"
+  body:
+    type: json
+    data: |-
+      {
+        "userId": "{{User2ID}}"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

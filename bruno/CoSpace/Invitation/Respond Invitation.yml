@@ -1,0 +1,39 @@
+info:
+  name: Respond Invitation
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{URL}}/invitations/:id"
+  params:
+    - name: id
+      value: "{{InvitationID}}"
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "status": "{{status}}"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Choose to accept or decline
+        const accept = true;
+
+        if (accept) {
+          bru.setVar('status', 'accepted');
+        } else {
+          bru.setVar('status', 'declined');
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
