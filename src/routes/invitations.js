@@ -11,10 +11,7 @@ const {
 
 const router = express.Router({ mergeParams: true });
 
-router
-    .route('/')
-    .get(protect, getInvitations)
-    .post(protect, createInvitation);
+router.route('/').get(protect, getInvitations).post(protect, createInvitation);
 
 router
     .route('/:id')

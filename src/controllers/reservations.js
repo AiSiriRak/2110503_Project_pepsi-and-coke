@@ -18,10 +18,7 @@ exports.getReservations = async (req, res, next) => {
 
         // Non-admins can only see reservations they own or co-booked
         if (req.user.role !== 'admin') {
-            filter.$or = [
-                { user: req.user.id },
-                { cobooker: req.user.id },
-            ];
+            filter.$or = [{ user: req.user.id }, { cobooker: req.user.id }];
         }
 
         // Executing query with filter
