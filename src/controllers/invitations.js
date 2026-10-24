@@ -6,6 +6,7 @@ const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all invitations
 // @route   GET /api/v1/invitations
+// @route   GET /api/v1/reservations/:reservationId/invitations
 // @access  Private
 exports.getInvitations = async (req, res, next) => {
     try {
