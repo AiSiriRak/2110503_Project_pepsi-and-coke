@@ -30,10 +30,7 @@ exports.getCoworkingSpaces = async (req, res, next) => {
         );
 
         // Finding resource
-        query = CoworkingSpace.find(JSON.parse(queryStr)).populate({
-            path: 'reservations',
-            select: 'reserveDate user',
-        });
+        query = CoworkingSpace.find(JSON.parse(queryStr));
 
         // Select Fields
         if (req.query.select) {

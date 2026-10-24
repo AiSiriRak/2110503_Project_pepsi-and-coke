@@ -19,6 +19,7 @@ const MSG = {
     EMAIL_ALREADY_REGISTERED: 'Email is already registered.',
     COWORKING_SPACE_ALREADY_RESERVED:
         'This co-working space is already reserved for the selected date.',
+    SELF_INVITATION: 'You cannot invite yourself',
     USER_ALREADY_INVITED: 'User has already been invited to this reservation.',
     INVALID_STATUS: 'Status must be accepted or declined',
     INVITATION_INACTIVE: (status) => `Invitation has already been ${status}`,

@@ -58,7 +58,7 @@ exports.getReservation = async (req, res, next) => {
             );
         }
 
-        // 3. Check if user is owner/co-booker/admin
+        // Check if user is owner/co-booker/admin
         const isOwner = reservation.user.toString() === req.user.id;
         const isCobooker = reservation.cobooker.some(
             (userId) => userId.toString() === req.user.id,

@@ -138,7 +138,7 @@ exports.createInvitation = async (req, res, next) => {
 
         // Prevent self-invitation
         if (userId === req.user.id) {
-            return next(new ErrorResponse('You cannot invite yourself', 400));
+            return next(new ErrorResponse(MSG.SELF_INVITATION, 400));
         }
 
         // Check if the target user is valid
