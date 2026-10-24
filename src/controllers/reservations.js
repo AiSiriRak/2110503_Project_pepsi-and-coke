@@ -5,41 +5,35 @@ const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all reservations
 // @route   GET /api/v1/reservations
+// @route   GET /api/v1/coworkingspaces/:coworkingSpaceId/reservations
 // @access  Private
 exports.getReservations = async (req, res, next) => {
-    let query;
+    try {
+        const filter = {};
 
-    if (req.user.role !== 'admin') {
-        // General users can see only their reservations
-        query = Reservation.find({
-            $or: [{ user: req.user.id }, { cobooker: req.user.id }],
-        }).populate({
+        // Filter by coworking space if nested route is used (applies to ALL roles)
+        if (req.params.coworkingSpaceId) {
+            filter.coworkingSpace = req.params.coworkingSpaceId;
+        }
+
+        // Non-admins can only see reservations they own or co-booked
+        if (req.user.role !== 'admin') {
+            filter.$or = [
+                { user: req.user.id },
+                { cobooker: req.user.id },
+            ];
+        }
+
+        // Executing query with filter
+        const reservations = await Reservation.find(filter).populate({
             path: 'coworkingSpace',
             select: 'name address telephoneNumber openTime closeTime maximumCapacity',
         });
-    } else {
-        // Admin can see all reservations
-        if (req.params.coworkingSpaceId) {
-            query = Reservation.find({
-                coworkingSpace: req.params.coworkingSpaceId,
-            }).populate({
-                path: 'coworkingSpace',
-                select: 'name address telephoneNumber openTime closeTime maximumCapacity',
-            });
-        } else
-            query = Reservation.find().populate({
-                path: 'coworkingSpace',
-                select: 'name address telephoneNumber openTime closeTime maximumCapacity',
-            });
-    }
 
-    try {
-        // Executing query
-        const reservation = await query;
         res.status(200).json({
             success: true,
-            count: reservation.length,
-            data: reservation,
+            count: reservations.length,
+            data: reservations,
         });
     } catch (error) {
         next(error);
@@ -67,20 +61,36 @@ exports.getReservation = async (req, res, next) => {
             );
         }
 
-        // Check if user is owner/co-booker/admin
-        if (
-            reservation.user.toString() !== req.user.id &&
-            !reservation.cobooker.some(
-                (userId) => userId.toString() === req.user.id,
-            ) &&
-            req.user.role !== 'admin'
-        )
+        // 3. Check if user is owner/co-booker/admin
+        const isOwner = reservation.user.toString() === req.user.id;
+        const isCobooker = reservation.cobooker.some(
+            (userId) => userId.toString() === req.user.id,
+        );
+        const isAdmin = req.user.role === 'admin';
+
+        if (!isOwner && !isCobooker && !isAdmin) {
             return next(new ErrorResponse(MSG.NOT_RESOURCE_OWNER, 403));
+        }
+
+        // Fetch associated invitations
+        const invitationFilter = { reservation: req.params.id };
+
+        // Hosts and admins see all invitations; co-bookers see only invitations meant for them
+        if (!isOwner && !isAdmin) {
+            invitationFilter.recipient = req.user.id;
+        }
+
+        const invitations = await Invitation.find(invitationFilter)
+            .populate('inviter', 'name email')
+            .populate('recipient', 'name email');
 
         // Found Reservation
         res.status(200).json({
             success: true,
-            data: reservation,
+            data: {
+                ...reservation.toObject(),
+                invitations,
+            },
         });
     } catch (error) {
         next(error);
@@ -109,7 +119,7 @@ exports.createReservation = async (req, res, next) => {
         // Add user Id to req.body
         req.body.user = req.user.id;
 
-        // Check for existed appointment
+        // Check for existed reservation
         const existedReservations = await Reservation.find({
             user: req.user.id,
         });
@@ -122,7 +132,10 @@ exports.createReservation = async (req, res, next) => {
 
         const reservation = await Reservation.create(req.body);
 
-        res.status(201).json({ success: true, data: reservation });
+        res.status(201).json({
+            success: true,
+            data: reservation,
+        });
     } catch (error) {
         next(error);
     }
@@ -159,7 +172,10 @@ exports.updateReservation = async (req, res, next) => {
             },
         );
 
-        res.status(200).json({ success: true, data: reservation });
+        res.status(200).json({
+            success: true,
+            data: reservation,
+        });
     } catch (error) {
         next(error);
     }
@@ -196,7 +212,10 @@ exports.deleteReservation = async (req, res, next) => {
         // Delete Reservation
         await reservation.deleteOne();
 
-        res.status(200).json({ success: true, data: {} });
+        res.status(200).json({
+            success: true,
+            data: {},
+        });
     } catch (error) {
         next(error);
     }
