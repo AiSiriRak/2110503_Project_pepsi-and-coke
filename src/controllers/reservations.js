@@ -52,11 +52,10 @@ exports.getReservations = async (req, res, next) => {
 exports.getReservation = async (req, res, next) => {
     try {
         // Find Reservation by ID
-        const reservation = await Reservation.findById(req.params.id)
-            .populate({
-                path: 'coworkingSpace',
-                select: 'name address telephoneNumber openTime closeTime maximumCapacity',
-            });
+        const reservation = await Reservation.findById(req.params.id).populate({
+            path: 'coworkingSpace',
+            select: 'name address telephoneNumber openTime closeTime maximumCapacity',
+        });
 
         // Reservation with the ID not found
         if (!reservation) {
