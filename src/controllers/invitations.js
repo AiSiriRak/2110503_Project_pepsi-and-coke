@@ -146,6 +146,11 @@ exports.createInvitation = async (req, res, next) => {
             return next(new ErrorResponse(MSG.USER_NOT_FOUND, 404));
         }
 
+        // Prevent inviting already cobooker
+        if (reservation.cobooker.some((id) => id.toString() === userId)) {
+            return next(new ErrorResponse(MSG.USER_ALREADY_INVITED, 400));
+        }
+
         // Check for active invitations
         const activeStatus = 'pending';
         const existingInvitations = await Invitation.find({
@@ -155,7 +160,33 @@ exports.createInvitation = async (req, res, next) => {
 
         // If the invited user is not an admin, they can only have 3 pending invitation.
         if (existingInvitations.length >= 3 && targetUser.role !== 'admin') {
-            return next(new ErrorResponse(MSG.INVITATION_LIMIT(userId), 400));
+            return next(new ErrorResponse(MSG.INVITATION_LIMIT_USER(userId), 400));
+        }
+
+        // Check Space Capacity limit
+        const coworkingSpace = await CoworkingSpace.findById(
+            reservation.coworkingSpace,
+        );
+
+        if (!coworkingSpace)
+            return next(
+                new ErrorResponse(
+                    MSG.COWORKING_SPACE_NOT_FOUND(reservation.coworkingSpace),
+                    404,
+                ),
+            );
+
+        // Total occupied = 1 (Host) + current accepted cobookers
+        const totalConfirmed = 1 + reservation.cobooker.length;
+        const remainingCapacity = coworkingSpace.maximumCapacity - totalConfirmed;
+
+        const activeInvitations = await Invitation.find({
+            reservation: reservationId,
+            status: activeStatus,
+        });
+
+        if (activeInvitations.length >= remainingCapacity) {
+            return next(new ErrorResponse(MSG.INVITATION_LIMIT_RESERVATION(reservationId, coworkingSpace.maximumCapacity)), 400);
         }
 
         const invitation = await Invitation.create({

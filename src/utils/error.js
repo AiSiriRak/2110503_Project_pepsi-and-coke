@@ -11,8 +11,10 @@ const MSG = {
     WRONG_OBJECT_ID_FORMAT: 'Wrong object ID format',
     RESERVATION_LIMIT: (id) =>
         `The user with ID ${id} has already made 3 reservations.`,
-    INVITATION_LIMIT: (id) =>
+    INVITATION_LIMIT_USER: (id) =>
         `The user with ID ${id} has already have 3 active invitations.`,
+    INVITATION_LIMIT_RESERVATION: (id, amount) =>
+        `The reservation with ID ${id} has already have ${amount} active invitations and cobooker.`,
     DUPLICATE_KEY: 'Duplicate value entered for a unique field.',
     EMAIL_ALREADY_REGISTERED: 'Email is already registered.',
     COWORKING_SPACE_ALREADY_RESERVED:
