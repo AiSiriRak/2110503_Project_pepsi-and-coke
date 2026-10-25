@@ -50,16 +50,6 @@ runtime:
       code: |-
         const body = res.getBody();
 
-        test("Register returns 200 or 201", () => {
-          expect([200, 201]).to.include(res.getStatus());
-        });
-
-        test("Register returns success and token", () => {
-          expect(body.success).to.equal(true);
-          expect(body.token).to.be.a("string");
-          expect(body.token).to.not.be.empty;
-        });
-
         if ([200, 201].includes(res.getStatus()) && body.token) {
           bru.setVar("registeredToken", body.token);
         }

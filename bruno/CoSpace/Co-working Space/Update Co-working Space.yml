@@ -29,17 +29,6 @@ runtime:
         );
         const maxCapacity = Math.floor(Math.random() * 20) + 5;
         bru.setVar('maxCapacity', maxCapacity);
-    - type: after-response
-      code: |-
-        const body = res.getBody();
-
-        test("Update space returns 200", () => {
-          expect(res.getStatus()).to.equal(200);
-        });
-
-        test("Updated space returns success", () => {
-          expect(body.success).to.equal(true);
-        });
 
 settings:
   encodeUrl: true

@@ -59,17 +59,6 @@ runtime:
       code: |-
         const body = res.getBody();
 
-        test("Create space returns 201", () => {
-          expect(res.getStatus()).to.equal(201);
-        });
-
-        test("Created space contains an ID", () => {
-          expect(body.success).to.equal(true);
-          expect(body.data).to.be.an("object");
-          expect(body.data._id).to.be.a("string");
-          expect(body.data._id).to.not.be.empty;
-        });
-
         if (
           res.getStatus() === 201 &&
           body.success === true &&

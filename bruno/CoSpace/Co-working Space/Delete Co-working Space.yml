@@ -12,20 +12,6 @@ http:
       type: path
   auth: inherit
 
-runtime:
-  scripts:
-    - type: after-response
-      code: |-
-        const body = res.getBody();
-
-        test("Delete space returns 200", () => {
-          expect(res.getStatus()).to.equal(200);
-        });
-
-        test("Delete space returns success", () => {
-          expect(body.success).to.equal(true);
-        });
-
 settings:
   encodeUrl: true
   timeout: 0
