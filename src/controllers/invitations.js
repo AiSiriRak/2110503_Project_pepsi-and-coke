@@ -116,7 +116,18 @@ exports.getInvitation = async (req, res, next) => {
 exports.createInvitation = async (req, res, next) => {
     try {
         const { reservationId } = req.params;
-        const { userId } = req.body;
+        const { email } = req.body;
+
+        // Validate body
+        if (!email) {
+            return next(new ErrorResponse(MSG.MISSING_COBOOKER_EMAIL, 400));
+        }
+
+        // Check if the recipient is valid
+        const recipient = await User.findOne({ email: email.toLowerCase() });
+        if (!recipient) {
+            return next(new ErrorResponse(MSG.USER_NOT_FOUND, 404));
+        }
 
         // Check if Reservation ID is valid
         const reservation = await Reservation.findById(reservationId);
@@ -137,32 +148,33 @@ exports.createInvitation = async (req, res, next) => {
         }
 
         // Prevent self-invitation
-        if (userId === req.user.id) {
+        if (recipient._id.toString() === req.user.id) {
             return next(new ErrorResponse(MSG.SELF_INVITATION, 400));
         }
 
-        // Check if the target user is valid
-        const targetUser = await User.findById(userId);
-        if (!targetUser) {
-            return next(new ErrorResponse(MSG.USER_NOT_FOUND, 404));
-        }
-
         // Prevent inviting already cobooker
-        if (reservation.cobooker.some((id) => id.toString() === userId)) {
+        if (
+            reservation.cobooker.some(
+                (id) => id.toString() === recipient._id.toString(),
+            )
+        ) {
             return next(new ErrorResponse(MSG.USER_ALREADY_INVITED, 400));
         }
 
         // Check for active invitations
         const activeStatus = 'pending';
         const existingInvitations = await Invitation.find({
-            recipient: userId,
+            recipient: recipient._id,
             status: activeStatus,
         });
 
         // If the invited user is not an admin, they can only have 3 pending invitation.
-        if (existingInvitations.length >= 3 && targetUser.role !== 'admin') {
+        if (existingInvitations.length >= 3 && recipient.role !== 'admin') {
             return next(
-                new ErrorResponse(MSG.INVITATION_LIMIT_USER(userId), 400),
+                new ErrorResponse(
+                    MSG.INVITATION_LIMIT_USER(recipient._id),
+                    400,
+                ),
             );
         }
 
@@ -204,7 +216,7 @@ exports.createInvitation = async (req, res, next) => {
         const invitation = await Invitation.create({
             reservation: reservationId,
             inviter: req.user.id,
-            recipient: userId,
+            recipient: recipient._id,
             status: activeStatus,
         });
 

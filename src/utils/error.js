@@ -23,6 +23,7 @@ const MSG = {
     USER_ALREADY_INVITED: 'User has already been invited to this reservation.',
     INVALID_STATUS: 'Status must be accepted or declined',
     INVITATION_INACTIVE: (status) => `Invitation has already been ${status}`,
+    MISSING_COBOOKER_EMAIL: "Please provide the co-booker's registered email",
 
     // 401 Unauthorized
     INVALID_CREDENTIALS: 'Invalid credentials',
