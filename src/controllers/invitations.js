@@ -118,28 +118,28 @@ exports.createInvitation = async (req, res, next) => {
         const { reservationId } = req.params;
         const { email } = req.body;
 
-        // Validate body
+        // Validate request body
         if (!email) {
             return next(new ErrorResponse(MSG.MISSING_COBOOKER_EMAIL, 400));
         }
 
-        // Check if the recipient is valid
+        // Find recipient
         const recipient = await User.findOne({ email: email.toLowerCase() });
         if (!recipient) {
             return next(new ErrorResponse(MSG.USER_NOT_FOUND, 404));
         }
 
-        // Check if Reservation ID is valid
+        // Find reservation
         const reservation = await Reservation.findById(reservationId);
         if (!reservation)
             return next(
                 new ErrorResponse(
-                    MSG.RESERVATION_NOT_FOUND(req.params.reservationId),
+                    MSG.RESERVATION_NOT_FOUND(reservationId),
                     404,
                 ),
             );
 
-        // Check if the inviter is owner of the reservation
+        // Check resource owner / admin
         if (
             reservation.user.toString() !== req.user.id &&
             req.user.role !== 'admin'
@@ -152,7 +152,7 @@ exports.createInvitation = async (req, res, next) => {
             return next(new ErrorResponse(MSG.SELF_INVITATION, 400));
         }
 
-        // Prevent inviting already cobooker
+        // Prevent inviting someone who is already an accepted co-booker
         if (
             reservation.cobooker.some(
                 (id) => id.toString() === recipient._id.toString(),
@@ -161,64 +161,14 @@ exports.createInvitation = async (req, res, next) => {
             return next(new ErrorResponse(MSG.USER_ALREADY_INVITED, 400));
         }
 
-        // Check for active invitations
-        const activeStatus = 'pending';
-        const existingInvitations = await Invitation.find({
-            recipient: recipient._id,
-            status: activeStatus,
-        });
-
-        // If the invited user is not an admin, they can only have 3 pending invitation.
-        if (existingInvitations.length >= 3 && recipient.role !== 'admin') {
-            return next(
-                new ErrorResponse(
-                    MSG.INVITATION_LIMIT_USER(recipient._id),
-                    400,
-                ),
-            );
-        }
-
-        // Check Space Capacity limit
-        const coworkingSpace = await CoworkingSpace.findById(
-            reservation.coworkingSpace,
-        );
-
-        if (!coworkingSpace)
-            return next(
-                new ErrorResponse(
-                    MSG.COWORKING_SPACE_NOT_FOUND(reservation.coworkingSpace),
-                    404,
-                ),
-            );
-
-        // Total occupied = 1 (Host) + current accepted cobookers
-        const totalConfirmed = 1 + reservation.cobooker.length;
-        const remainingCapacity =
-            coworkingSpace.maximumCapacity - totalConfirmed;
-
-        const activeInvitations = await Invitation.find({
-            reservation: reservationId,
-            status: activeStatus,
-        });
-
-        if (activeInvitations.length >= remainingCapacity) {
-            return next(
-                new ErrorResponse(
-                    MSG.INVITATION_LIMIT_RESERVATION(
-                        reservationId,
-                        coworkingSpace.maximumCapacity,
-                    ),
-                ),
-                400,
-            );
-        }
-
         const invitation = await Invitation.create({
             reservation: reservationId,
             inviter: req.user.id,
             recipient: recipient._id,
-            status: activeStatus,
+            status: 'pending',
         });
+
+        // TODO: Add line trigger message for create here
 
         res.status(201).json({
             success: true,
@@ -241,7 +191,7 @@ exports.respondInvitation = async (req, res, next) => {
             return next(new ErrorResponse(MSG.INVALID_STATUS, 400));
         }
 
-        let invitation = await Invitation.findById(req.params.id);
+        const invitation = await Invitation.findById(req.params.id);
 
         // Check if invitation exist
         if (!invitation) {
@@ -265,16 +215,79 @@ exports.respondInvitation = async (req, res, next) => {
             );
         }
 
+        // If accept, check limit and add user id into reservation's cobooker
+        if (status === 'accepted') {
+            // Check if user has already maximize reserve limit
+            if (req.user.role !== 'admin') {
+                const activeReservationsCount =
+                    await Reservation.countDocuments({
+                        $or: [{ user: req.user.id }, { cobooker: req.user.id }],
+                    });
+
+                if (activeReservationsCount >= 3) {
+                    return next(
+                        new ErrorResponse(
+                            MSG.RESERVATION_LIMIT(req.user.id),
+                            400,
+                        ),
+                    );
+                }
+            }
+
+            // Validate reservation
+            const reservation = await Reservation.findById(
+                invitation.reservation,
+            );
+            if (!reservation) {
+                return next(
+                    new ErrorResponse(
+                        MSG.RESERVATION_NOT_FOUND(invitation.reservation),
+                        404,
+                    ),
+                );
+            }
+
+            // Validate co-working space
+            const coworkingSpace = await CoworkingSpace.findById(
+                reservation.coworkingSpace,
+            );
+            if (!coworkingSpace) {
+                return next(
+                    new ErrorResponse(
+                        MSG.COWORKING_SPACE_NOT_FOUND(
+                            reservation.coworkingSpace,
+                        ),
+                        404,
+                    ),
+                );
+            }
+
+            // Check Co-working Space's capacity and Reservation's
+            if (
+                reservation.cobooker.length + 1 >=
+                coworkingSpace.maximumCapacity
+            ) {
+                return next(
+                    new ErrorResponse(
+                        MSG.INVITATION_LIMIT_RESERVATION(
+                            reservation._id,
+                            coworkingSpace.maximumCapacity,
+                        ),
+                        400,
+                    ),
+                );
+            }
+
+            await Reservation.findByIdAndUpdate(reservation._id, {
+                $addToSet: { cobooker: req.user.id },
+            });
+        }
+
         // Update status
         invitation.status = status;
         await invitation.save();
 
-        // If accept, add user id into reservation's cobooker
-        if (status === 'accepted') {
-            await Reservation.findByIdAndUpdate(invitation.reservation, {
-                $addToSet: { cobooker: req.user.id },
-            });
-        }
+        // TODO: Trigger LINE notification to host regarding accept/decline action
 
         res.status(200).json({
             success: true,
