@@ -1,6 +1,7 @@
 const line = require('@line/bot-sdk');
 
 const ADD_LINE_LINK = 'https://lin.ee/Qp3cqaj';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 let client;
 const getClient = () => {
@@ -13,35 +14,89 @@ const getClient = () => {
 };
 
 // For pushing normal text
-exports.pushText = (to, text) => {
+const pushText = (to, text) => {
     getClient().pushMessage({ to, messages: [{ type: 'text', text }] });
 };
 
 // For Reply user's message
-exports.replyText = (replyToken, text) => {
+const replyText = (replyToken, text) => {
     getClient().replyMessage({
         replyToken,
         messages: [{ type: 'text', text }],
     });
 };
 
-// For send reminder to user.
+// For sending reminder before reservation date.
 // Use in this format :
-// reminderBubble({UserLineId}, "Co name", "Reservation in 3 Days", "12-10-69", "08:00 - 16:00", {reservationInfoUrl})
-exports.reminderBubble = (
-    to,
-    coworkingSpaceName,
-    reservationMsg,
-    date,
-    time,
-    url,
-) => {
-    getClient().pushMessage({
+// reminderBubble({UserLineId}, coworkingSpace data, reservation data, 3)
+const reminderBubble = (to, coworkingSpace, reservation, days) => {
+    return notiBubble(
         to,
+        coworkingSpace,
+        reservation,
+        '⏰ Reminder ⏰',
+        `${days === 0 ? 'Today is the reservation date!' : `Reservation in ${days} day${days === 1 ? '' : 's'}`}`,
+        'Details',
+        'https://youtu.be/dQw4w9WgXcQ?si=WR71wwoRu6oMQjd0', // PLACE HOLDER, MUST BE REPLACED WITH BELOW LINE
+        // `${FRONTEND_URL}/reservations/${reservation._id}`,
+    );
+};
+
+// For sending invitation to be co-booker
+// Use in this format :
+// inviteBubble({UserLineId}, coworkingSpace data, reservation data, 'Owner Name')
+const inviteBubble = (to, coworkingSpace, reservation, owner) => {
+    return notiBubble(
+        to,
+        coworkingSpace,
+        reservation,
+        '🚪 New invitation 🚪',
+        `${owner} has invited you to be co-booker!`,
+        'Accept',
+        'https://youtu.be/dQw4w9WgXcQ?si=WR71wwoRu6oMQjd0', // PLACE HOLDER, MUST BE REPLACED WITH BELOW LINE
+        // `${FRONTEND_URL}/invitations/${invitation._id}`,
+    );
+};
+
+// For sending reservation status when create/update/delete reservation
+// Use in this format :
+// reservationBubble({UserLineId}, coworkingSpace data, reservation data, 'created')
+const reservationBubble = (to, coworkingSpace, reservation, action) => {
+    return notiBubble(
+        to,
+        coworkingSpace,
+        reservation,
+        '📃 New update of reservation 📃',
+        `Your reservation has been ${action}!`,
+        'Details',
+        'https://youtu.be/dQw4w9WgXcQ?si=WR71wwoRu6oMQjd0', // PLACE HOLDER, MUST BE REPLACED WITH BELOW LINE
+        // `${FRONTEND_URL}/reservations/${reservation._id}`,
+    );
+};
+
+// For send reminder to user in general.
+// Use in this format :
+// notiBubble({UserLineId}, coworkingSpace data, reservation data, '⏰ Reminder ⏰', 'Reservation in 3 days')
+const notiBubble = (
+    replyToken, // TEMP, MUST BE REPLACED WITH BELOW LINE (For eco purpose)
+    // to,
+    coworkingSpace,
+    reservation,
+    headerTxt,
+    descriptionTxt,
+    buttonTxt = 'Details',
+    detailLink = 'https://youtu.be/dQw4w9WgXcQ?si=WR71wwoRu6oMQjd0', // PLACE HOLDER, MUST BE REPLACED WITH BELOW LINE
+    // detailLink = FRONTEND_URL,
+) => {
+    // TEMP, MUST BE REPLACED WITH BELOW 2 LINES (For eco purpose)
+    getClient().replyMessage({
+        replyToken,
+        // getClient().pushMessage({
+        //     to,
         messages: [
             {
                 type: 'flex',
-                altText: 'reminder message',
+                altText: `${headerTxt} ${descriptionTxt}`,
                 contents: {
                     type: 'bubble',
                     body: {
@@ -50,23 +105,24 @@ exports.reminderBubble = (
                         contents: [
                             {
                                 type: 'text',
-                                text: '⏰ Reminder ⏰',
+                                text: headerTxt,
                                 decoration: 'none',
                                 color: '#a15c86',
                             },
                             {
                                 type: 'text',
-                                text: coworkingSpaceName,
+                                text: coworkingSpace.name,
                                 weight: 'bold',
                                 size: 'xxl',
                                 margin: 'sm',
                             },
                             {
                                 type: 'text',
-                                text: reservationMsg,
+                                text: descriptionTxt,
                                 weight: 'regular',
                                 size: 'xl',
                                 margin: 'none',
+                                wrap: true,
                             },
                             {
                                 type: 'box',
@@ -84,11 +140,11 @@ exports.reminderBubble = (
                                                 text: 'Date',
                                                 color: '#aaaaaa',
                                                 size: 'sm',
-                                                flex: 1,
+                                                flex: 3,
                                             },
                                             {
                                                 type: 'text',
-                                                text: date,
+                                                text: reservation.reserveDate,
                                                 wrap: true,
                                                 color: '#666666',
                                                 size: 'sm',
@@ -103,14 +159,15 @@ exports.reminderBubble = (
                                         contents: [
                                             {
                                                 type: 'text',
-                                                text: 'Time',
+                                                text: 'Open time',
                                                 color: '#aaaaaa',
                                                 size: 'sm',
-                                                flex: 1,
+                                                flex: 3,
+                                                wrap: true,
                                             },
                                             {
                                                 type: 'text',
-                                                text: time,
+                                                text: `${coworkingSpace.openTime} - ${coworkingSpace.closeTime}`,
                                                 wrap: true,
                                                 color: '#666666',
                                                 size: 'sm',
@@ -130,8 +187,8 @@ exports.reminderBubble = (
                                 type: 'button',
                                 action: {
                                     type: 'uri',
-                                    label: 'Details',
-                                    uri: url,
+                                    label: buttonTxt,
+                                    uri: detailLink,
                                 },
                             },
                         ],
@@ -141,4 +198,13 @@ exports.reminderBubble = (
         ],
     });
 };
-module.exports.ADD_LINE_LINK = ADD_LINE_LINK;
+
+module.exports = {
+    pushText,
+    replyText,
+    reminderBubble,
+    inviteBubble,
+    reservationBubble,
+    notiBubble,
+    ADD_LINE_LINK,
+};

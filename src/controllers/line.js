@@ -1,6 +1,12 @@
 const crypto = require('crypto');
 const User = require('../models/User');
-const { replyText, reminderBubble, ADD_LINE_LINK } = require('../utils/line');
+const {
+    replyText,
+    reminderBubble,
+    ADD_LINE_LINK,
+    inviteBubble,
+    reservationBubble,
+} = require('../utils/line');
 
 // @route   POST /api/v1/line/link-code
 // @access  Private
@@ -38,17 +44,36 @@ const handleEvent = async (event) => {
     const lineUserId = event.source.userId;
     const linkedUser = await User.findOne({ lineUserId });
 
-    // ** FOR TESTING ONLY ** //
+    // *********** FOR TESTING ONLY ************* //
     // Send reminder to user
-    if (/^test$/i.test(event.message.text.trim()))
-        return reminderBubble(
-            lineUserId,
-            'Co name',
-            'Reservation in 3 Days',
-            '12-10-69',
-            '08:00 - 16:00',
-            'https://youtu.be/dQw4w9WgXcQ?si=VBvSda7M2Tj3W62h',
+    const testCowork = {
+        name: 'Co name Test',
+        address: '67/67, next world province, 00000',
+        telephoneNumber: '123-456-7890',
+        openTime: '08:00',
+        closeTime: '16.00',
+        maximumCapacity: 3,
+    };
+    const testReserv = {
+        reserveDate: '2022-01-01',
+    };
+    if (/^test reminder$/i.test(event.message.text.trim()))
+        return reminderBubble(event.replyToken, testCowork, testReserv, 3);
+    if (/^test invite$/i.test(event.message.text.trim()))
+        return inviteBubble(
+            event.replyToken,
+            testCowork,
+            testReserv,
+            'test user',
         );
+    if (/^test reserv$/i.test(event.message.text.trim()))
+        return reservationBubble(
+            event.replyToken,
+            testCowork,
+            testReserv,
+            'created',
+        );
+    // ****************************************** //
 
     // If user already linked Line account
     if (linkedUser) {
