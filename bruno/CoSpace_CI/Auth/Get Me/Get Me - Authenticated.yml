@@ -1,0 +1,40 @@
+info:
+  name: Get Me - Authenticated
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{URL}}/auth/me"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get me success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get Me returns user data", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.success).to.equal(true);
+          
+          expect(res.body.data).to.have.property("name");
+          expect(res.body.data).to.have.property("email");
+          expect(res.body.data).to.have.property("telephoneNumber");
+          expect(res.body.data).to.have.property("role");
+        });
+
+        test("Get Me returns correct user role", function () {
+          expect(res.body.data.role).to.equal("user");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

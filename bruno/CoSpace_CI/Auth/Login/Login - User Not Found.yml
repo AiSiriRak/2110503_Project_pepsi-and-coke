@@ -1,0 +1,35 @@
+info:
+  name: Login - User Not Found
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{URL}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "email@email.com",
+        "password": "password"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Login fail, 401 Unauthorized", function () {
+          expect(res.status).to.equal(401);
+        });
+
+        test("Error message: Invalid credentials", function () {
+          expect(res.body.message).to.equal("Invalid credentials");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

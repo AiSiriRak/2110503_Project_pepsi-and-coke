@@ -2,6 +2,22 @@ opencollection: 1.0.0
 
 info:
   name: CoworkingSpace API Test
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: URL
+      value: http://localhost:5000/api/v1
 bundled: false
 extensions:
   bruno:
