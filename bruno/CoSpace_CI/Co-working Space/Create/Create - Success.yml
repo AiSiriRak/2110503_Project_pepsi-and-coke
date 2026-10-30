@@ -1,0 +1,91 @@
+info:
+  name: Create - Success
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{URL}}/coworking-spaces"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "{{cospaceName}}",
+        "address": "{{address}}",
+        "telephoneNumber": "{{telephoneNumber}}",
+        "openTime": "{{openTime}}",
+        "closeTime": "{{closeTime}}",
+        "maximumCapacity": {{maxCapacity}}
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Generate a Co-working space name
+        const cospaceName = bru.interpolate('{{$randomCompanyName}} Space');
+        bru.setVar('cospaceName', cospaceName);
+
+        // Generate an address
+        const address = bru.interpolate('{{$randomStreetAddress}}, {{$randomCity}}');
+        bru.setVar('address', address);
+
+        // Generate a telephone number
+        const prefixes = ['06', '08', '09'];
+        const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+        const telephoneNumber = `${randomPrefix}${randomNumber}`;
+        bru.setVar('telephoneNumber', telephoneNumber);
+
+        // Generate an opening time
+        const randomOpenHour = Math.floor(Math.random() * 12) + 6;
+        const openTime = (Math.random() < 0.5) ? 
+              `${String(randomOpenHour).padStart(2, '0')}:00` : 
+              `${String(randomOpenHour).padStart(2, '0')}:30`;
+        bru.setVar('openTime', openTime);
+
+        // Generate a closing time
+        const randomCloseHour = Math.floor(Math.random() * 6) + 18;
+        const closeTime = (Math.random() < 0.5) ? 
+              `${String(randomCloseHour).padStart(2, '0')}:00` : 
+              `${String(randomCloseHour).padStart(2, '0')}:30`;
+        bru.setVar('closeTime', closeTime);
+
+        // Generate a maximum capacity
+        const maxCapacity = Math.floor(Math.random() * 15) + 1;
+        bru.setVar('maxCapacity', maxCapacity);
+    - type: after-response
+      code: |-
+        test("Create coworking space success, 201 Created", function () {
+          expect(res.status).to.equal(201);
+        });
+
+        test("Create coworking space returns correct response structure", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.success).to.equal(true);
+
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.have.property("_id");
+        });
+
+        test("Create coworking space returns correct data", function () {
+          expect(res.body.data.name).to.equal(bru.getVar("cospaceName"));
+          expect(res.body.data.address).to.equal(bru.getVar("address"));
+          expect(res.body.data.telephoneNumber).to.equal(bru.getVar("telephoneNumber"));
+        });
+
+        test("Create coworking space stores ID", function () {
+          expect(res.body.data._id).to.be.a("string").and.not.empty;
+
+          bru.setEnvVar("coworkingSpaceId", res.body.data._id);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

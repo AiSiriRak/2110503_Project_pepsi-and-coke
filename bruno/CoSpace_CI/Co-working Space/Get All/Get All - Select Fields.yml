@@ -1,0 +1,39 @@
+info:
+  name: Get All - Select Fields
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{URL}}/coworking-spaces?select=name,address"
+  params:
+    - name: select
+      value: name,address
+      type: query
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get coworking spaces with selected fields success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get coworking spaces returns only selected fields", function () {
+          expect(res.body.success).to.equal(true);
+          expect(res.body.data).to.be.an("array");
+
+          res.body.data.forEach((space) => {
+            expect(space).to.have.property("name");
+            expect(space).to.have.property("address");
+            expect(space).to.not.have.property("email");
+          });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

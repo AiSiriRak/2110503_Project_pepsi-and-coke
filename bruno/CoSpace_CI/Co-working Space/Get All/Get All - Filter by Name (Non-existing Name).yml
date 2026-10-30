@@ -1,0 +1,35 @@
+info:
+  name: Get All - Filter by Name (Non-existing Name)
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: "{{URL}}/coworking-spaces?name=NonExistingCoWorkingSpace"
+  params:
+    - name: name
+      value: NonExistingCoWorkingSpace
+      type: query
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get coworking spaces with non-existing name success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get coworking spaces returns empty data", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.success).to.equal(true);
+          expect(res.body.count).to.equal(0);
+          expect(res.body.data).to.be.an("array").that.is.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

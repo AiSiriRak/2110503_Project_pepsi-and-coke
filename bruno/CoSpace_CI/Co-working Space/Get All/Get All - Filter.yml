@@ -1,0 +1,55 @@
+info:
+  name: Get All - Filter
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: "{{URL}}/coworking-spaces?name=Block%20-%20Kirlin%20Space"
+  params:
+    - name: name
+      value: Block%20-%20Kirlin%20Space
+      type: query
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get all coworking spaces success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get all coworking spaces returns correct response structure", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.success).to.equal(true);
+
+          expect(res.body).to.have.property("count");
+          expect(res.body.count).to.be.a("number");
+
+          expect(res.body).to.have.property("pagination");
+          expect(res.body.pagination).to.be.an("object");
+
+          expect(res.body).to.have.property("data");
+          expect(res.body.data).to.be.an("array");
+        });
+
+        test("Get all coworking spaces returns matching name", function () {
+          expect(res.body.data).to.be.an("array");
+
+          res.body.data.forEach((space) => {
+            expect(space).to.have.property("name");
+            expect(space.name).to.equal("Block - Kirlin Space");
+          });
+        });
+
+        test("Get all coworking spaces count matches returned data", function () {
+          expect(res.body.count).to.equal(res.body.data.length);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

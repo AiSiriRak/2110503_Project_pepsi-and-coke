@@ -1,0 +1,31 @@
+info:
+  name: Delete - Success
+  type: http
+  seq: 1
+
+http:
+  method: DELETE
+  url: "{{URL}}/coworking-spaces/{{coworkingSpaceId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Delete coworking space success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Delete coworking space returns success response", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.success).to.equal(true);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

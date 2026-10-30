@@ -1,0 +1,35 @@
+info:
+  name: Login - User 2
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{URL}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "user2@test.com",
+        "password": "password123"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Login success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        if (res.status === 200) {
+          bru.setVar("user2Token", res.body.token);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

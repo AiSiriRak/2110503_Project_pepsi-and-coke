@@ -1,0 +1,41 @@
+info:
+  name: Get By ID - Success
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{URL}}/coworking-spaces/{{coworkingSpaceId}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get coworking space by ID success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get coworking space by ID returns correct response structure", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.success).to.equal(true);
+
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.have.property("_id");
+          expect(res.body.data).to.have.property("name");
+          expect(res.body.data).to.have.property("address");
+          expect(res.body.data).to.have.property("telephoneNumber");
+          expect(res.body.data).to.have.property("openTime");
+          expect(res.body.data).to.have.property("closeTime");
+          expect(res.body.data).to.have.property("maximumCapacity");
+        });
+
+        test("Get coworking space by ID returns the correct coworking space", function () {
+          expect(res.body.data._id).to.equal(bru.getEnvVar("coworkingSpaceId"));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
