@@ -1,0 +1,18 @@
+info:
+  name: Delete - Cleaning
+  type: http
+  seq: 8
+
+http:
+  method: DELETE
+  url: "{{URL}}/invitations/{{invitation5Id}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

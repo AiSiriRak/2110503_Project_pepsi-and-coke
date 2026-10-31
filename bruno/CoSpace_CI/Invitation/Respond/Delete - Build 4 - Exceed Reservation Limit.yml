@@ -1,14 +1,14 @@
 info:
-  name: Delete - Cleaning
+  name: Delete - Build 4 - Exceed Reservation Limit
   type: http
-  seq: 7
+  seq: 15
 
 http:
   method: DELETE
-  url: "{{URL}}/reservations/{{reservation3Id}}"
+  url: "{{URL}}/invitations/{{invitation4Id}}"
   auth:
     type: bearer
-    token: "{{adminToken}}"
+    token: "{{userToken}}"
 
 settings:
   encodeUrl: true

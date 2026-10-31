@@ -5,7 +5,7 @@ info:
 
 http:
   method: DELETE
-  url: "{{URL}}/reservations/{{reservation3Id}}"
+  url: "{{URL}}/reservations/{{reservationId}}"
   auth:
     type: bearer
     token: "{{user2Token}}"

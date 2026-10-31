@@ -12,7 +12,7 @@ const MSG = {
     RESERVATION_LIMIT: (id) =>
         `The user with ID ${id} has already made 3 reservations.`,
     INVITATION_LIMIT_RESERVATION: (id, amount) =>
-        `The reservation with ID ${id} has already have ${amount} active invitations and cobooker.`,
+        `The reservation with ID ${id} has already have ${amount} bookers.`,
     DUPLICATE_KEY: 'Duplicate value entered for a unique field.',
     EMAIL_ALREADY_REGISTERED: 'Email is already registered.',
     COWORKING_SPACE_ALREADY_RESERVED:
@@ -21,7 +21,7 @@ const MSG = {
     USER_ALREADY_INVITED: 'User has already been invited to this reservation.',
     INVALID_STATUS: 'Status must be accepted or declined',
     INVITATION_INACTIVE: (status) => `Invitation has already been ${status}`,
-    MISSING_COBOOKER_EMAIL: "Please provide the co-booker's registered email",
+    MISSING_COBOOKER_EMAIL: 'Please provide the co-booker\'s registered email',
 
     // 401 Unauthorized
     INVALID_CREDENTIALS: 'Invalid credentials',

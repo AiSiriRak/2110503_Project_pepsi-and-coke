@@ -1,0 +1,33 @@
+info:
+  name: Create - Build - Response Decline
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{URL}}/reservations/{{reservationId}}/invitations"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{user1Email}}"
+      }
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Save Invitation ID for subsequent requests
+        if (res.body.success && res.body.data?._id) {
+          bru.setEnvVar("invitation2Id", res.body.data._id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

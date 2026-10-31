@@ -1,0 +1,52 @@
+info:
+  name: Accept - Success
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{URL}}/invitations/{{invitationId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "status": "accepted"
+      }
+  auth:
+    type: bearer
+    token: "{{user2Token}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Accept Invitation success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Accept Invitation returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Accept Invitation returns invitation data", function () {
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.have.property("_id");
+          expect(res.body.data).to.have.property("reservation");
+          expect(res.body.data).to.have.property("inviter");
+          expect(res.body.data).to.have.property("recipient");
+          expect(res.body.data).to.have.property("status");
+        });
+
+        test("Invitation status is accepted", function () {
+          expect(res.body.data.status).to.equal("accepted");
+          expect(res.body.data._id).to.equal(
+            bru.interpolate("{{invitationId}}")
+          );
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

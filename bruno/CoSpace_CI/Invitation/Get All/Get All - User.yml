@@ -1,0 +1,48 @@
+info:
+  name: Get All - User
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{URL}}/invitations"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get All Invitations as User success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get All Invitations as User returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Get All Invitations as User returns invitation list", function () {
+          expect(res.body.count).to.equal(res.body.data.length);
+          expect(res.body.data).to.be.an("array");
+        });
+
+        test("User only receives invitations where they are inviter or recipient", function () {
+          const userId = bru.interpolate("{{userId}}");
+
+          res.body.data.forEach((invitation) => {
+            const inviterId = invitation.inviter._id;
+            const recipientId = invitation.recipient._id;
+
+            expect(
+              inviterId === userId || recipientId === userId
+            ).to.equal(true);
+          });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -41,7 +41,7 @@ request:
       value: 6adbc362b05483b1fed340da
       description: user 2 id
     - name: CoworkingSpaceID
-      value: ""
+      value: 6ae5a003749b94f8c8f18d53
     - name: token
       value: ""
 bundled: false

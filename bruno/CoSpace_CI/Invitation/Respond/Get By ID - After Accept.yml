@@ -1,0 +1,32 @@
+info:
+  name: Get By ID - After Accept
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{URL}}/reservations/{{reservationId}}"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Accepted Co-booker is added to Reservation", function () {
+          const recipientUserId = bru.interpolate("{{user2ID}}");
+
+          const cobookerIds = res.body.data.cobooker.map((id) => {
+            return typeof id === "object" ? id._id : id;
+          });
+
+          expect(cobookerIds).to.include(recipientUserId);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

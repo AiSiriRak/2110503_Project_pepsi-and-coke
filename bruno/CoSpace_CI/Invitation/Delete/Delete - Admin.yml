@@ -1,0 +1,35 @@
+info:
+  name: Delete - Admin
+  type: http
+  seq: 3
+
+http:
+  method: DELETE
+  url: "{{URL}}/invitations/{{invitationId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Delete Invitation success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Delete Invitation returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Delete Invitation returns empty data", function () {
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

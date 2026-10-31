@@ -1,0 +1,33 @@
+info:
+  name: Create - Build 1 - Exceed Reservation Capacity
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{URL}}/reservations/{{reservationId}}/invitations"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{adminEmail}}"
+      }
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Save Invitation ID for subsequent requests
+        if (res.body.success && res.body.data?._id) {
+          bru.setEnvVar("invitation4Id", res.body.data._id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
