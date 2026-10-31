@@ -1,5 +1,5 @@
 info:
-  name: Get All Co-working Space
+  name: Get All Co-working Spaces
   type: http
   seq: 1
 
@@ -13,15 +13,6 @@ runtime:
     - type: after-response
       code: |-
         const body = res.getBody();
-
-        test("Get all spaces returns 200", () => {
-          expect(res.getStatus()).to.equal(200);
-        });
-
-        test("Response contains a data array", () => {
-          expect(body.success).to.equal(true);
-          expect(body.data).to.be.an("array");
-        });
 
         if (
           res.getStatus() === 200 &&

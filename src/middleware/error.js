@@ -21,7 +21,24 @@ const errorHandler = (err, req, res, next) => {
     // Duplicate key (e.g. email already exists)
     if (err.code === 11000) {
         statusCode = 400;
-        message = MSG.EMAIL_ALREADY_REGISTERED;
+        const keys = Object.keys(err.keyValue || err.keyPattern || {});
+
+        if (keys.includes('email')) {
+            message = MSG.EMAIL_ALREADY_REGISTERED;
+        } else if (
+            keys.includes('coworkingSpace') ||
+            keys.includes('reserveDate') ||
+            keys.includes('bookingDateString')
+        ) {
+            message = MSG.COWORKING_SPACE_ALREADY_RESERVED;
+        } else if (
+            keys.includes('reservation') &&
+            keys.includes('recipient')
+        ) {
+            message = MSG.USER_ALREADY_INVITED;
+        } else {
+            message = MSG.DUPLICATE_KEY;
+        }
     }
 
     // Invalid or expired JWT

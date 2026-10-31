@@ -1,0 +1,48 @@
+info:
+  name: Get By ID - Owner
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{URL}}/reservations/{{reservationId}}"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get Reservation by ID success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get Reservation by ID returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Get Reservation by ID returns reservation data", function () {
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.have.property("_id");
+          expect(res.body.data).to.have.property("reserveDate");
+          expect(res.body.data).to.have.property("coworkingSpace");
+          expect(res.body.data).to.have.property("user");
+          expect(res.body.data).to.have.property("cobooker");
+          expect(res.body.data).to.have.property("invitations");
+        });
+
+        test("Reservation data matches requested ID", function () {
+          expect(res.body.data._id).to.equal(bru.getEnvVar("reservationId"));
+        });
+
+        test("Owner can view all reservation invitations", function () {
+          expect(res.body.data.invitations).to.be.an("array");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

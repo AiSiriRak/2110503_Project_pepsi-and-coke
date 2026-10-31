@@ -1,0 +1,33 @@
+info:
+  name: User Login 1
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{URL}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+          "email": "{{user1Email}}",
+          "password": "{{allUserPassword}}"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        if (res.getStatus() === 200 && body.token) {
+          bru.setVar("token", body.token);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

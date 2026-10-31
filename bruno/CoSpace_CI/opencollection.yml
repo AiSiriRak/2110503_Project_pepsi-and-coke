@@ -1,0 +1,40 @@
+opencollection: 1.0.0
+
+info:
+  name: CoworkingSpace API Test
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: URL
+      value: http://localhost:5000/api/v1
+    - name: user1Email
+      value: user1@helper.com
+    - name: user1ID
+      value: 6ae62d92304611173b698fc5
+    - name: user2Email
+      value: user2@helper.com
+    - name: user2ID
+      value: 6ae62d95304611173b698fc6
+    - name: adminEmail
+      value: admin@test.com
+    - name: allUserPassword
+      value: password123
+    - name: CoworkingSpaceID
+      value: 6ae5a003749b94f8c8f18d53
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

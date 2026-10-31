@@ -5,8 +5,12 @@ const ReservationSchema = new mongoose.Schema(
     {
         // Reserve Date
         reserveDate: {
-            type: Date,
+            type: String,
             required: [true, 'Please add a reserve date.'],
+            match: [
+                /^\d{4}-\d{2}-\d{2}$/,
+                'Please use YYYY-MM-DD format for reserve date.',
+            ],
         },
 
         // Co-working Space ID
@@ -35,6 +39,12 @@ const ReservationSchema = new mongoose.Schema(
         // Timestamp for created at and updated at
         timestamps: true,
     },
+);
+
+// Create Compound Unique Index: 1 Reservation per 1 Co-working Space
+ReservationSchema.index(
+    { coworkingSpace: 1, reserveDate: 1 },
+    { unique: true },
 );
 
 module.exports = mongoose.model('Reservation', ReservationSchema);

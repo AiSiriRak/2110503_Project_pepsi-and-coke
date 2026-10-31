@@ -1,0 +1,56 @@
+info:
+  name: Get All - User
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{URL}}/reservations"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get All Reservations success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get All Reservations returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Get All Reservations returns reservation list", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.count).to.be.a("number");
+          expect(res.body.data).to.be.an("array");
+          expect(res.body.count).to.equal(res.body.data.length);
+        });
+
+        test("User only receives their own or co-booked reservations", function () {
+          const userId = bru.getEnvVar("userId");
+
+          res.body.data.forEach((reservation) => {
+            const ownerId = typeof reservation.user === "object"
+              ? reservation.user._id
+              : reservation.user;
+
+            const isOwner = ownerId.toString() === userId;
+
+            const isCobooker = reservation.cobooker.some((id) => {
+              const cobookerId = typeof id === "object" ? id._id : id;
+              return cobookerId.toString() === userId;
+            });
+
+            expect(isOwner || isCobooker).to.equal(true);
+          });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

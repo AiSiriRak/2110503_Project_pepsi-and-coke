@@ -1,0 +1,24 @@
+info:
+  name: Accept - Build 2 - Exceed Reservation Capacity
+  type: http
+  seq: 10
+
+http:
+  method: PUT
+  url: "{{URL}}/invitations/{{invitation4Id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "status": "accepted"
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

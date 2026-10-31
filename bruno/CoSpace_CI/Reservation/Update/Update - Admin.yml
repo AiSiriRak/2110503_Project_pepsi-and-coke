@@ -1,0 +1,50 @@
+info:
+  name: Update - Admin
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{URL}}/reservations/{{reservationId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "reserveDate": "2026-11-01"
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Update Reservation as Admin success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Update Reservation as Admin returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Update Reservation as Admin returns reservation data", function () {
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.have.property("_id");
+          expect(res.body.data).to.have.property("reserveDate");
+          expect(res.body.data).to.have.property("coworkingSpace");
+          expect(res.body.data).to.have.property("user");
+          expect(res.body.data).to.have.property("cobooker");
+        });
+
+        test("Updated reservation data matches request", function () {
+          expect(res.body.data._id).to.equal(bru.getEnvVar("reservationId"));
+          expect(res.body.data.reserveDate).to.equal("2026-11-01");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

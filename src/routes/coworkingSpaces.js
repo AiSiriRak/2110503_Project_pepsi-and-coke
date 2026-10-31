@@ -9,7 +9,13 @@ const {
     deleteCoworkingSpace,
 } = require('../controllers/coworkingspaces');
 
+// Include other resource routers
+const reservationRouter = require('./reservations');
+
 const router = express.Router();
+
+// Re-route into other resource routers
+router.use('/:coworkingSpaceId/reservations/', reservationRouter);
 
 router
     .route('/')

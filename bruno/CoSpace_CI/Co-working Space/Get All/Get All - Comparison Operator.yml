@@ -1,0 +1,37 @@
+info:
+  name: Get All - Comparison Operator
+  type: http
+  seq: 7
+
+http:
+  method: GET
+  url: "{{URL}}/coworking-spaces?maximumCapacity[gte]=3"
+  params:
+    - name: maximumCapacity[gte]
+      value: "3"
+      type: query
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get coworking spaces with comparison operator success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get coworking spaces returns data matching comparison condition", function () {
+          expect(res.body.success).to.equal(true);
+          expect(res.body.data).to.be.an("array");
+
+          res.body.data.forEach((space) => {
+            expect(space.maximumCapacity).to.be.at.least(3);
+          });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

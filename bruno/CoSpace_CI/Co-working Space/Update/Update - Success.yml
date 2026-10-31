@@ -1,0 +1,61 @@
+info:
+  name: Update - Success
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{URL}}/coworking-spaces/{{coworkingSpaceId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "{{cospaceName}}",
+        "maximumCapacity": {{maxCapacity}}
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Generate an updated Co-working space name
+        const cospaceName = bru.interpolate('{{$randomCompanyName}} Updated Space');
+        bru.setVar('cospaceName', cospaceName);
+
+        // Generate an updated maximum capacity
+        const maxCapacity = Math.floor(Math.random() * 20) + 5;
+        bru.setVar('maxCapacity', maxCapacity);
+    - type: after-response
+      code: |-
+        test("Update coworking space success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Update coworking space returns correct response structure", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.success).to.equal(true);
+
+          expect(res.body.data).to.be.an("object");
+        });
+
+        test("Update coworking space returns updated name", function () {
+          expect(res.body.data.name).to.equal(bru.getVar("cospaceName"));
+        });
+
+        test("Update coworking space returns updated maximum capacity", function () {
+          expect(res.body.data.maximumCapacity).to.equal(bru.getVar("maxCapacity"));
+        });
+
+        test("Update coworking space returns the correct ID", function () {
+          expect(res.body.data._id).to.equal(bru.getEnvVar("coworkingSpaceId"));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

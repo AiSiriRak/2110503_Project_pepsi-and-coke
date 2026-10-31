@@ -1,0 +1,18 @@
+info:
+  name: Delete - Cleaning 1
+  type: http
+  seq: 17
+
+http:
+  method: DELETE
+  url: "{{URL}}/reservations/{{user1Reserve1Id}}"
+  auth:
+    type: bearer
+    token: "{{user1Token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

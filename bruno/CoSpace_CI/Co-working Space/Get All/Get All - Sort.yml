@@ -1,0 +1,41 @@
+info:
+  name: Get All - Sort
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{URL}}/coworking-spaces?sort=-createdAt"
+  params:
+    - name: sort
+      value: -createdAt
+      type: query
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get coworking spaces with sorting success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get coworking spaces are sorted by createdAt descending", function () {
+          expect(res.body.success).to.equal(true);
+          expect(res.body.data).to.be.an("array");
+
+          for (let i = 0; i < res.body.data.length - 1; i++) {
+            expect(
+              new Date(res.body.data[i].createdAt).getTime()
+            ).to.be.at.least(
+              new Date(res.body.data[i + 1].createdAt).getTime()
+            );
+          }
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

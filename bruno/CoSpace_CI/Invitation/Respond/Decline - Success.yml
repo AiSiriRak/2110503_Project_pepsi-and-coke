@@ -1,0 +1,49 @@
+info:
+  name: Decline - Success
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{URL}}/invitations/{{invitation2Id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "status": "declined"
+      }
+  auth:
+    type: bearer
+    token: "{{user1Token}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Decline Invitation success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Decline Invitation returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Decline Invitation returns invitation data", function () {
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.have.property("_id");
+          expect(res.body.data).to.have.property("status");
+        });
+
+        test("Invitation status is declined", function () {
+          expect(res.body.data.status).to.equal("declined");
+          expect(res.body.data._id).to.equal(
+            bru.interpolate("{{invitation2Id}}")
+          );
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

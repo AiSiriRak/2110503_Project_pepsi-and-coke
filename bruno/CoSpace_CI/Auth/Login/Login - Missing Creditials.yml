@@ -1,0 +1,35 @@
+info:
+  name: Login - Missing Creditials
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{URL}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "",
+        "password": ""
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Login fail, 400 Bad Request", function () {
+          expect(res.status).to.equal(400);
+        });
+
+        test("Error message: Missing credentials", function () {
+          expect(res.body.message).to.equal("Please provide an email and password.");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

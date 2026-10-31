@@ -1,0 +1,25 @@
+info:
+  name: Get Reservation by ID
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{URL}}/reservations/:id"
+  params:
+    - name: id
+      value: "{{ReservationID}}"
+      type: path
+  auth: inherit
+
+runtime:
+  variables:
+    - name: ReservationID
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

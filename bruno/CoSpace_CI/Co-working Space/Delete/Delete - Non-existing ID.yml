@@ -1,0 +1,32 @@
+info:
+  name: Delete - Non-existing ID
+  type: http
+  seq: 3
+
+http:
+  method: DELETE
+  url: "{{URL}}/coworking-spaces/000000000000000000000001"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Delete coworking space with non-existing ID returns 404 Not Found", function () {
+          expect(res.status).to.equal(404);
+        });
+
+        test("Delete coworking space with non-existing ID returns error response", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.success).to.equal(false);
+          expect(res.body.message).to.equal("Coworking space not found with ID of 000000000000000000000001");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

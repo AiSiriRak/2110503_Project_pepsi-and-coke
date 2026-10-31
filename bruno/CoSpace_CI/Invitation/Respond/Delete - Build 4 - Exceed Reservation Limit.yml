@@ -1,0 +1,18 @@
+info:
+  name: Delete - Build 4 - Exceed Reservation Limit
+  type: http
+  seq: 15
+
+http:
+  method: DELETE
+  url: "{{URL}}/invitations/{{invitation4Id}}"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

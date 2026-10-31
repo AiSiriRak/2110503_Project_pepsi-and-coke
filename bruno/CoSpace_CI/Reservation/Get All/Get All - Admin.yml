@@ -1,0 +1,51 @@
+info:
+  name: Get All - Admin
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{URL}}/reservations"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Get All Reservations success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Get All Reservations returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Get All Reservations returns reservation list", function () {
+          expect(res.body).to.be.an("object");
+          expect(res.body.count).to.be.a("number");
+          expect(res.body.data).to.be.an("array");
+          expect(res.body.count).to.equal(res.body.data.length);
+        });
+
+        test("Get All Reservations returns valid reservation data", function () {
+          res.body.data.forEach((reservation) => {
+            expect(reservation).to.have.property("_id");
+            expect(reservation).to.have.property("reserveDate");
+            expect(reservation).to.have.property("user");
+            expect(reservation).to.have.property("coworkingSpace");
+            expect(reservation).to.have.property("cobooker");
+
+            expect(reservation.coworkingSpace).to.be.an("object");
+            expect(reservation.coworkingSpace).to.have.property("name");
+            expect(reservation.coworkingSpace).to.have.property("address");
+          });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

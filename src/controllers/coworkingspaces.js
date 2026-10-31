@@ -1,5 +1,6 @@
 const CoworkingSpace = require('../models/CoworkingSpace');
 const Reservation = require('../models/Reservation');
+const Invitation = require('../models/Invitation');
 const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all coworking spaces
@@ -103,10 +104,18 @@ exports.getCoworkingSpace = async (req, res, next) => {
             );
         }
 
+        // Find all reservations associated with this co-working space
+        const reservations = await Reservation.find({
+            coworkingSpace: req.params.id,
+        }).populate('user', 'name email');
+
         // Found Co-working Space
         res.status(200).json({
             success: true,
-            data: coworkingSpace,
+            data: {
+                ...coworkingSpace.toObject(),
+                reservations,
+            },
         });
     } catch (error) {
         next(error);
@@ -181,6 +190,18 @@ exports.deleteCoworkingSpace = async (req, res, next) => {
                     404,
                 ),
             );
+        }
+
+        // Get all reservation IDs of the Co-working Space
+        const reservationIds = await Reservation.distinct('_id', {
+            coworkingSpace: req.params.id,
+        });
+
+        // Delete Invitation that are relate the Co-working Space
+        if (reservationIds.length > 0) {
+            await Invitation.deleteMany({
+                reservation: { $in: reservationIds },
+            });
         }
 
         // Delete reservation from the Co-working Space with ID
