@@ -5,7 +5,7 @@ const { ErrorResponse, MSG } = require('../utils/error');
 
 // @desc    Get all reservations
 // @route   GET /api/v1/reservations
-// @route   GET /api/v1/coworkingspaces/:coworkingSpaceId/reservations
+// @route   GET /api/v1/coworking-spaces/:coworkingSpaceId/reservations
 // @access  Private
 exports.getReservations = async (req, res, next) => {
     try {

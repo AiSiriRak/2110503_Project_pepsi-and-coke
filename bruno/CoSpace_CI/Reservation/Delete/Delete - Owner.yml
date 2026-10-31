@@ -1,0 +1,35 @@
+info:
+  name: Delete - Owner
+  type: http
+  seq: 1
+
+http:
+  method: DELETE
+  url: "{{URL}}/reservations/{{reservationId}}"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Delete Reservation success, 200 OK", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("Delete Reservation returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Delete Reservation returns empty data", function () {
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

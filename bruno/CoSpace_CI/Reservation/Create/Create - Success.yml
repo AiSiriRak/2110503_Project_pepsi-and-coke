@@ -1,0 +1,67 @@
+info:
+  name: Create - Success
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{URL}}/coworking-spaces/{{CoworkingSpaceID}}/reservations"
+  body:
+    type: json
+    data: |-
+      {
+          "reserveDate" : "{{reserveDate}}"
+      }
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Generate reserve date
+        const start = new Date('2025-01-01').getTime();
+        const end = new Date('2027-12-31').getTime();
+
+        const randomTimestamp = start + Math.random() * (end - start);
+        const randomDate = new Date(randomTimestamp);
+
+        const reserveDate = randomDate.toISOString().split('T')[0];
+        bru.setVar('reserveDate', reserveDate);
+    - type: after-response
+      code: |-
+        test("Create Reservation success, 201 Created", function () {
+          expect(res.status).to.equal(201);
+        });
+
+        test("Create Reservation returns success", function () {
+          expect(res.body.success).to.equal(true);
+        });
+
+        test("Create Reservation returns reservation data", function () {
+          expect(res.body.data).to.be.an("object");
+          expect(res.body.data).to.have.property("_id");
+          expect(res.body.data).to.have.property("reserveDate");
+          expect(res.body.data).to.have.property("coworkingSpace");
+          expect(res.body.data).to.have.property("user");
+          expect(res.body.data).to.have.property("cobooker");
+        });
+
+        test("Reservation data matches request", function () {
+          expect(res.body.data.reserveDate).to.equal(bru.getVar("reserveDate"));
+          const coworkingSpaceId = bru.interpolate("{{CoworkingSpaceID}}");
+
+        expect(res.body.data.coworkingSpace).to.equal(coworkingSpaceId);
+          expect(res.body.data.cobooker).to.be.an("array").that.is.empty;
+        });
+
+        // Save reservation ID for subsequent requests
+        bru.setEnvVar("reservationId", res.body.data._id);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -18,6 +18,8 @@ request:
   variables:
     - name: URL
       value: http://localhost:5000/api/v1
+    - name: CoworkingSpaceID
+      value: 6ae5a003749b94f8c8f18d53
 bundled: false
 extensions:
   bruno:

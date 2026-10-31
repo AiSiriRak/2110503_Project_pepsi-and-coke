@@ -32,6 +32,8 @@ runtime:
           expect(res.body.data.role).to.equal("user");
         });
 
+        bru.setEnvVar("userId", res.body.data._id);
+
 settings:
   encodeUrl: true
   timeout: 0

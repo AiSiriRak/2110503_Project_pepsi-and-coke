@@ -23,39 +23,30 @@ runtime:
     - type: before-request
       code: |-
         // Generate a username
-        if (!bru.getVar("username")) {
-          const username = bru.interpolate('{{$randomUserName}}');
-          bru.setVar("username", username);
-        }
+        const username = bru.interpolate('{{$randomUserName}}');
+        bru.setVar("username", username);
 
         // Generate an email
-        if (!bru.getVar("email")) {
-          const email = bru.interpolate('{{$randomEmail}}').toLowerCase();
-          bru.setVar("email", email);
-        }
+        const email = bru.interpolate('{{$randomEmail}}').toLowerCase();
+        bru.setVar("email", email);
 
         // Generate a password
-        if (!bru.getVar("password")) {
-          const password = bru.interpolate('{{$randomPassword}}');
-          bru.setVar("password", password);
-        }
+        const password = bru.interpolate('{{$randomPassword}}');
+        bru.setVar("password", password);
 
         // Generate a Thai telephone number
-        if (!bru.getVar("telephoneNumber")) {
-          const prefixes = ['06', '08', '09'];
-          const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-          const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
-          const thaiPhone = `${randomPrefix}${randomNumber}`;
-
-          bru.setVar("telephoneNumber", thaiPhone);
-        }
+        const prefixes = ['06', '08', '09'];
+        const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+        const thaiPhone = `${randomPrefix}${randomNumber}`;
+        bru.setVar("telephoneNumber", thaiPhone);
     - type: after-response
       code: |-
-        test("Register success, 201 Created success", function () {
-          expect(res.status).to.be.an(201);
+        test("Register success, 201 Created", function () {
+          expect(res.status).to.equal(201);
         });
 
-        test("Register return response body", function () {
+        test("Register returns response body", function () {
           expect(res.body).to.be.an("object");
         });
 

@@ -1,0 +1,7 @@
+info:
+  name: Get By ID
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit
